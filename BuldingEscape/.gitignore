@@ -75,10 +75,4 @@ DerivedDataCache/*
 
 ## Custom additions
 # Unreal Starter kit
-BuldingEscape/Content/StarterContent/
-# Broader ignore of generated folders
-*/Build
-*/Binaries
-*/DerivedDataCache
-*/Intermediate
-*/Saved
+Content/StarterContent/
