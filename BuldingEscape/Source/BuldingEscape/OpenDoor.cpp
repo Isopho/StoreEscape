@@ -2,6 +2,10 @@
 
 
 #include "OpenDoor.h"
+#include "GameFramework/Actor.h"
+
+float TargetDegree{};
+float TurnSpeed = -70.0f / 5;
 
 // Sets default values for this component's properties
 UOpenDoor::UOpenDoor()
@@ -19,7 +23,7 @@ void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
+	TargetDegree = -70.0f + GetOwner()->GetActorRotation().Yaw;	
 	
 }
 
@@ -28,7 +32,11 @@ void UOpenDoor::BeginPlay()
 void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
+	
+	if (GetOwner()->GetActorRotation().Yaw > TargetDegree)
+	{
+		FRotator DoorRotator{ 0.0f,DeltaTime*TurnSpeed,0.0f };
+		GetOwner()->AddActorLocalRotation(DoorRotator);
+	}	
 }
 
