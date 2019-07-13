@@ -8,6 +8,7 @@
 #include "Components/ActorComponent.h"
 #include "Engine/World.h"
 #include "Engine/TriggerVolume.h"
+#include "GenericPlatform/GenericPlatformMath.h"
 #include "OpenDoor.generated.h"
 
 
@@ -29,17 +30,16 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
-	UPROPERTY(VisibleAnywhere)
+	UPROPERTY(EditAnywhere)
 	float OpenAngle = -90.0f;
 
-	UPROPERTY(VisibleAnywhere)
-	float TurnSpeed = -30.0f;
+	UPROPERTY(EditAnywhere)
+	float DoorOpenCloseDuration = 1.0f;
 
 	UPROPERTY(EditAnywhere)
-	ATriggerVolume* PressurePlate;
+	ATriggerVolume* PressurePlate {};
 
-	UPROPERTY(EditAnywhere)
-	AActor* ActivatingActor;
+	AActor* ActivatingActor{};
 
-	float TargetDegree{};
+	float StartDegree{};
 };

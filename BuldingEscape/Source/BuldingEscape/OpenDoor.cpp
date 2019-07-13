@@ -19,7 +19,7 @@ void UOpenDoor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	TargetDegree = OpenAngle + GetOwner()->GetActorRotation().Yaw;
+	StartDegree = GetOwner()->GetActorRotation().Yaw;
 	ActivatingActor = GetWorld()->GetFirstPlayerController()->GetPawn();
 	
 }
@@ -30,12 +30,15 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	
-	
-	if (PressurePlate->IsOverlappingActor(ActivatingActor) && GetOwner()->GetActorRotation().Yaw > TargetDegree)
+	if (PressurePlate->IsOverlappingActor(ActivatingActor) && std::abs(GetOwner()->GetActorRotation().Yaw - (StartDegree + OpenAngle)) > 1.0f)
 	{
-		FRotator DoorRotator{ 0.0f,DeltaTime*TurnSpeed,0.0f };
+		FRotator DoorRotator{ 0.0f,DeltaTime * OpenAngle / DoorOpenCloseDuration,0.0f };
 		GetOwner()->AddActorLocalRotation(DoorRotator);
 	}	
+	else if (!PressurePlate->IsOverlappingActor(ActivatingActor) && std::abs(GetOwner()->GetActorRotation().Yaw - StartDegree) > 1.0f)
+	{
+		FRotator DoorRotator{ 0.0f,DeltaTime * (-OpenAngle) / DoorOpenCloseDuration,0.0f };
+		GetOwner()->AddActorLocalRotation(DoorRotator);
+	}
 }
 
