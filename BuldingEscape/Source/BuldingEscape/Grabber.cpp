@@ -32,25 +32,27 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	// Location of the Player Pawn Kamera
 	FVector PlayerViewLocation{};
 	FRotator PlayerViewRotation{};
 	FVector PlayerViewDirection{};
-
-	// Get player view point this tick
+	FVector PlayerReachLocation{};
+	/// Get player view point this tick
 	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
 		OUT PlayerViewLocation, 
 		OUT PlayerViewRotation
 	);
 
 	PlayerViewDirection = PlayerViewRotation.Vector();
+	PlayerReachLocation = PlayerViewLocation + (PlayerViewDirection * Reach);
 
-	//UE_LOG(LogTemp, Warning, TEXT("Location: %s --- Rotation: %s"), *PlayerViewLocation.ToString(), *PlayerViewRotation.ToString());
+	///UE_LOG(LogTemp, Warning, TEXT("Location: %s --- Rotation: %s"), *PlayerViewLocation.ToString(), *PlayerViewRotation.ToString());
 
-	// ray-cast out to reach distance
+	/// ray-cast out to reach distance
 	DrawDebugLine(
 		GetWorld(),
 		PlayerViewLocation,
-		PlayerViewLocation + (PlayerViewDirection * Reach),
+		PlayerReachLocation,
 		FColor::Red,
 		false,
 		0.0f,
@@ -58,6 +60,23 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		20.0f
 	);
 
-	// see what we hit
+	/// Line-trace (AKA ray-cast) out to reach distance
+	// Hit of the grab line trace.
+	FHitResult Hit{};
+	FCollisionQueryParams CQParams{FName(TEXT("")), false, GetOwner()};
+	
+	bool FoundHit = GetWorld()->LineTraceSingleByObjectType(
+		OUT Hit,
+		PlayerViewLocation,
+		PlayerReachLocation,
+		FCollisionObjectQueryParams{ECollisionChannel::ECC_PhysicsBody},
+		CQParams
+	);
+
+	/// see what we hit
+	if (FoundHit) {
+		UE_LOG(LogTemp, Warning, TEXT("Hit: %s"), *(Hit.GetActor()->GetName()));
+	}
+
 }
 
