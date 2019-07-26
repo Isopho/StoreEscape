@@ -75,4 +75,5 @@ DerivedDataCache/*
 
 ## Custom additions
 # Unreal Starter kit
-Content/StarterContent/
+Content/StarterContent/Textures
+Content/StarterContent/HDRI
