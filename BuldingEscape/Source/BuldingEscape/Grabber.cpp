@@ -12,8 +12,6 @@ UGrabber::UGrabber()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
 }
 
 
@@ -22,22 +20,8 @@ void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
 
-	///Look for attached Physics Handle
-
-	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
-	if (!PhysicsHandle) {
-		UE_LOG(LogTemp, Error, TEXT("UPhysicsHandleComponent missing on %s"), *(GetOwner()->GetName()));
-	}
-
-	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
-	if (InputComponent) {
-		UE_LOG(LogTemp, Warning, TEXT("UInputComponent found on %s"), *(GetOwner()->GetName()));
-		InputComponent->BindAction("Grab", EInputEvent::IE_Pressed, this, &UGrabber::Grab);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("UInputComponent missing on %s"), *(GetOwner()->GetName()));
-	}
+	FindPhysicsHandleComponent();	
+	SetupInputComponent();
 }
 
 
@@ -45,6 +29,60 @@ void UGrabber::BeginPlay()
 void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	// if physics handle is attached 
+		// move what player is holding
+
+
+	
+
+}
+
+
+void UGrabber::Grab() {
+	UE_LOG(LogTemp, Warning, TEXT("Grabber activated on %s"), *(GetOwner()->GetName()));
+
+	/// LINE TRACE and reach any actors with any physics body collision
+
+	GetFirstPhysicsBodyInReach();
+
+	/// If we hit something then attach a physics handle
+	// TODO attache physics handle
+}
+
+
+void UGrabber::ReleaseGrab() {
+	UE_LOG(LogTemp, Warning, TEXT("Grabber released on %s"), *(GetOwner()->GetName()));
+
+	// TODO release physics handle
+}
+
+
+void UGrabber::FindPhysicsHandleComponent()
+{
+	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
+	if (!PhysicsHandle) {
+		UE_LOG(LogTemp, Error, TEXT("UPhysicsHandleComponent missing on %s"), *(GetOwner()->GetName()));
+	}
+}
+
+
+void UGrabber::SetupInputComponent()
+{
+	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
+	if (InputComponent) {
+		UE_LOG(LogTemp, Warning, TEXT("UInputComponent found on %s"), *(GetOwner()->GetName()));
+		InputComponent->BindAction("Grab", EInputEvent::IE_Pressed, this, &UGrabber::Grab);
+		InputComponent->BindAction("Grab", EInputEvent::IE_Released, this, &UGrabber::ReleaseGrab);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("UInputComponent missing on %s"), *(GetOwner()->GetName()));
+	}
+}
+
+const FHitResult UGrabber::GetFirstPhysicsBodyInReach()
+{
 
 	// Location of the Player Pawn Kamera
 	FVector PlayerViewLocation{};
@@ -92,10 +130,7 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 		UE_LOG(LogTemp, Warning, TEXT("Hit: %s"), *(Hit.GetActor()->GetName()));
 	}
 
+	return Hit;
 }
 
-
-void UGrabber::Grab() {
-	UE_LOG(LogTemp, Warning, TEXT("Grabber activated on %s"), *(GetOwner()->GetName()));
-}
 
