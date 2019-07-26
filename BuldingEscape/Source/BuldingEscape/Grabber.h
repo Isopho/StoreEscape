@@ -8,6 +8,7 @@
 #include "PhysicsEngine/PhysicsHandleComponent.h"
 #include "Engine/World.h"
 #include "Components/ActorComponent.h"
+#include "Components/InputComponent.h"
 #include "Grabber.generated.h"
 
 
@@ -34,5 +35,9 @@ private:
 	float Reach = 100.0f;
 
 	UPhysicsHandleComponent* PhysicsHandle{};
+	UInputComponent* InputComponent{};
+
+	// Ray-cast and grab whats in reach.
+	void Grab();
 
 };
