@@ -31,9 +31,28 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// if physics handle is attached 
+
+	if (PhysicsHandle->GrabbedComponent) {
 		// move what player is holding
 
+			// Location of the Player Pawn Kamera
+		FVector PlayerViewLocation{};
+		FRotator PlayerViewRotation{};
+		FVector PlayerViewDirection{};
+		FVector PlayerReachLocation{};
+		/// Get player view point this tick
+		GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
+			OUT PlayerViewLocation,
+			OUT PlayerViewRotation
+		);
 
+		PlayerViewDirection = PlayerViewRotation.Vector();
+		PlayerReachLocation = PlayerViewLocation + (PlayerViewDirection * Reach);
+
+
+		PhysicsHandle->SetTargetLocation(PlayerReachLocation);
+
+	}
 	
 
 }
@@ -44,10 +63,23 @@ void UGrabber::Grab() {
 
 	/// LINE TRACE and reach any actors with any physics body collision
 
-	GetFirstPhysicsBodyInReach();
+	// The first object hit in reach.
+	auto HitResult = GetFirstPhysicsBodyInReach();
+	   	
+	// The component that will be grabbed
+	auto ComponentToGrab = HitResult.GetComponent();
 
-	/// If we hit something then attach a physics handle
-	// TODO attache physics handle
+	if (HitResult.GetActor())
+	{
+		/// If we hit something then attach a physics handle
+		PhysicsHandle->GrabComponent(
+			ComponentToGrab,
+			FName{ TEXT("") },
+			ComponentToGrab->GetOwner()->GetActorLocation(),
+			true
+		);
+	}
+	
 }
 
 
@@ -55,6 +87,7 @@ void UGrabber::ReleaseGrab() {
 	UE_LOG(LogTemp, Warning, TEXT("Grabber released on %s"), *(GetOwner()->GetName()));
 
 	// TODO release physics handle
+	PhysicsHandle->ReleaseComponent();
 }
 
 
