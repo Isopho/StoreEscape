@@ -20,7 +20,7 @@ void UGrabber::BeginPlay()
 {
 	Super::BeginPlay();
 
-	FindPhysicsHandleComponent();	
+	AcquirePhysicsHandleComponent();	
 	SetupInputComponent();
 }
 
@@ -31,50 +31,27 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// if physics handle is attached 
-
 	if (PhysicsHandle->GrabbedComponent) {
 		// move what player is holding
-
-			// Location of the Player Pawn Kamera
-		FVector PlayerViewLocation{};
-		FRotator PlayerViewRotation{};
-		FVector PlayerViewDirection{};
-		FVector PlayerReachLocation{};
-		/// Get player view point this tick
-		GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
-			OUT PlayerViewLocation,
-			OUT PlayerViewRotation
-		);
-
-		PlayerViewDirection = PlayerViewRotation.Vector();
-		PlayerReachLocation = PlayerViewLocation + (PlayerViewDirection * Reach);
-
-
-		PhysicsHandle->SetTargetLocation(PlayerReachLocation);
-
+		auto ReachLine = GetReachLine();
+		PhysicsHandle->SetTargetLocation(ReachLine.End);
 	}
-	
-
 }
 
 
 void UGrabber::Grab() {
-	UE_LOG(LogTemp, Warning, TEXT("Grabber activated on %s"), *(GetOwner()->GetName()));
-
-	/// LINE TRACE and reach any actors with any physics body collision
-
 	// The first object hit in reach.
 	auto HitResult = GetFirstPhysicsBodyInReach();
 	   	
 	// The component that will be grabbed
 	auto ComponentToGrab = HitResult.GetComponent();
 
+	/// If we hit something then attach a physics handle
 	if (HitResult.GetActor())
 	{
-		/// If we hit something then attach a physics handle
 		PhysicsHandle->GrabComponent(
 			ComponentToGrab,
-			FName{ TEXT("") },
+			NAME_None, //no bones needed
 			ComponentToGrab->GetOwner()->GetActorLocation(),
 			true
 		);
@@ -84,14 +61,12 @@ void UGrabber::Grab() {
 
 
 void UGrabber::ReleaseGrab() {
-	UE_LOG(LogTemp, Warning, TEXT("Grabber released on %s"), *(GetOwner()->GetName()));
-
-	// TODO release physics handle
+	// Release currently grabbed component
 	PhysicsHandle->ReleaseComponent();
 }
 
 
-void UGrabber::FindPhysicsHandleComponent()
+void UGrabber::AcquirePhysicsHandleComponent()
 {
 	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
 	if (!PhysicsHandle) {
@@ -99,12 +74,10 @@ void UGrabber::FindPhysicsHandleComponent()
 	}
 }
 
-
 void UGrabber::SetupInputComponent()
 {
 	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
 	if (InputComponent) {
-		UE_LOG(LogTemp, Warning, TEXT("UInputComponent found on %s"), *(GetOwner()->GetName()));
 		InputComponent->BindAction("Grab", EInputEvent::IE_Pressed, this, &UGrabber::Grab);
 		InputComponent->BindAction("Grab", EInputEvent::IE_Released, this, &UGrabber::ReleaseGrab);
 	}
@@ -114,46 +87,19 @@ void UGrabber::SetupInputComponent()
 	}
 }
 
-const FHitResult UGrabber::GetFirstPhysicsBodyInReach()
+const FHitResult UGrabber::GetFirstPhysicsBodyInReach() const
 {
-
-	// Location of the Player Pawn Kamera
-	FVector PlayerViewLocation{};
-	FRotator PlayerViewRotation{};
-	FVector PlayerViewDirection{};
-	FVector PlayerReachLocation{};
-	/// Get player view point this tick
-	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
-		OUT PlayerViewLocation, 
-		OUT PlayerViewRotation
-	);
-
-	PlayerViewDirection = PlayerViewRotation.Vector();
-	PlayerReachLocation = PlayerViewLocation + (PlayerViewDirection * Reach);
-
-	///UE_LOG(LogTemp, Warning, TEXT("Location: %s --- Rotation: %s"), *PlayerViewLocation.ToString(), *PlayerViewRotation.ToString());
-
-	/// ray-cast out to reach distance
-	DrawDebugLine(
-		GetWorld(),
-		PlayerViewLocation,
-		PlayerReachLocation,
-		FColor::Red,
-		false,
-		0.0f,
-		0.0f,
-		20.0f
-	);
+	auto ReachLine = GetReachLine();
 
 	/// Line-trace (AKA ray-cast) out to reach distance
 	// Hit of the grab line trace.
 	FHitResult Hit{};
-	FCollisionQueryParams CQParams{FName(TEXT("")), false, GetOwner()};
+	FCollisionQueryParams CQParams{NAME_None, false, GetOwner()};
 	
 	bool FoundHit = GetWorld()->LineTraceSingleByObjectType(
 		OUT Hit,
-		PlayerViewLocation,
-		PlayerReachLocation,
+		ReachLine.Start,
+		ReachLine.End,
 		FCollisionObjectQueryParams{ECollisionChannel::ECC_PhysicsBody},
 		CQParams
 	);
@@ -164,6 +110,28 @@ const FHitResult UGrabber::GetFirstPhysicsBodyInReach()
 	}
 
 	return Hit;
+}
+
+// Returns a struct with pair of Vectors that mark the start and the end of the reach line.
+const UGrabber::FLine UGrabber::GetReachLine() const
+{
+	// Location of the Player Pawn Kamera
+	FVector PlayerViewLocation{};
+	FRotator PlayerViewRotation{};
+	FVector PlayerViewDirection{};
+	FVector PlayerReachLocation{};
+	/// Get player view point this tick
+	GetWorld()->GetFirstPlayerController()->GetPlayerViewPoint(
+		OUT PlayerViewLocation,
+		OUT PlayerViewRotation
+	);
+
+	PlayerViewDirection = PlayerViewRotation.Vector();
+	PlayerReachLocation = PlayerViewLocation + (PlayerViewDirection * Reach);
+
+	FLine ReachLine{ PlayerViewLocation, PlayerReachLocation };
+
+	return ReachLine;
 }
 
 
