@@ -47,7 +47,7 @@ public:
 private:
 	UPROPERTY(EditAnywhere)
 	//How far the player can reach.
-	float Reach = 100.0f;
+	float Reach = 180.0f;
 
 	UPROPERTY()
 	UPhysicsHandleComponent* PhysicsHandle{};
