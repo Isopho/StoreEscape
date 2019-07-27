@@ -31,7 +31,8 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// if physics handle is attached 
-	if (PhysicsHandle->GrabbedComponent) {
+	if (PhysicsHandle->GrabbedComponent) 
+	{
 		// move what player is holding
 		auto ReachLine = GetReachLine();
 		PhysicsHandle->SetTargetLocation(ReachLine.End);
@@ -69,7 +70,8 @@ void UGrabber::ReleaseGrab() {
 void UGrabber::AcquirePhysicsHandleComponent()
 {
 	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
-	if (!PhysicsHandle) {
+	if (!PhysicsHandle) 
+	{
 		UE_LOG(LogTemp, Error, TEXT("UPhysicsHandleComponent missing on %s"), *(GetOwner()->GetName()));
 	}
 }
@@ -77,7 +79,8 @@ void UGrabber::AcquirePhysicsHandleComponent()
 void UGrabber::SetupInputComponent()
 {
 	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
-	if (InputComponent) {
+	if (InputComponent) 
+	{
 		InputComponent->BindAction("Grab", EInputEvent::IE_Pressed, this, &UGrabber::Grab);
 		InputComponent->BindAction("Grab", EInputEvent::IE_Released, this, &UGrabber::ReleaseGrab);
 	}
@@ -105,7 +108,8 @@ const FHitResult UGrabber::GetFirstPhysicsBodyInReach() const
 	);
 
 	/// see what we hit
-	if (FoundHit) {
+	if (FoundHit) 
+	{
 		UE_LOG(LogTemp, Warning, TEXT("Hit: %s"), *(Hit.GetActor()->GetName()));
 	}
 

@@ -1,8 +1,8 @@
 // Copyright Jan-Uriel Lorbeer 2019.
-
-
 #include "OpenDoor.h"
 
+// Makro to mark parameters as return values (only for code readability)
+#define OUT
 // Sets default values for this component's properties
 UOpenDoor::UOpenDoor()
 {
@@ -20,7 +20,6 @@ void UOpenDoor::BeginPlay()
 	Super::BeginPlay();
 
 	StartDegree = GetOwner()->GetActorRotation().Yaw;
-	ActivatingActor = GetWorld()->GetFirstPlayerController()->GetPawn();
 	
 }
 
@@ -30,15 +29,34 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (PressurePlate->IsOverlappingActor(ActivatingActor) && std::abs(GetOwner()->GetActorRotation().Yaw - (StartDegree + OpenAngle)) > 1.0f)
+	if (TotalMassOfActorsOnTriggerArea() > 10.0f && std::abs(GetOwner()->GetActorRotation().Yaw - (StartDegree + OpenAngle)) > 1.0f)
 	{
 		FRotator DoorRotator{ 0.0f,DeltaTime * OpenAngle / DoorOpenCloseDuration,0.0f };
 		GetOwner()->AddActorLocalRotation(DoorRotator);
 	}	
-	else if (!PressurePlate->IsOverlappingActor(ActivatingActor) && std::abs(GetOwner()->GetActorRotation().Yaw - StartDegree) > 1.0f)
+	else if (!(TotalMassOfActorsOnTriggerArea() > 10.0f) && std::abs(GetOwner()->GetActorRotation().Yaw - StartDegree) > 1.0f)
 	{
 		FRotator DoorRotator{ 0.0f,DeltaTime * (-OpenAngle) / DoorOpenCloseDuration,0.0f };
 		GetOwner()->AddActorLocalRotation(DoorRotator);
 	}
+}
+
+float UOpenDoor::TotalMassOfActorsOnTriggerArea()
+{
+	float TotalMass = 0.0f;
+	
+	// Find all actors in/on trigger area
+	TArray<AActor*> OverlappingActors{};
+
+	PressurePlate->GetOverlappingActors(OUT OverlappingActors);
+
+	// sum up their masses
+	for (const auto * OverlappingActor : OverlappingActors) 
+	{		
+		TotalMass += OverlappingActor->FindComponentByClass<UPrimitiveComponent>()->GetMass();
+		UE_LOG(LogTemp, Warning, TEXT("Overlapping Actor: %s"), *OverlappingActor->GetName());
+	}
+
+	return TotalMass;
 }
 

@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/Actor.h"
 #include "Components/ActorComponent.h"
+#include "Components/PrimitiveComponent.h"
 #include "Engine/World.h"
 #include "Engine/TriggerVolume.h"
 #include "GenericPlatform/GenericPlatformMath.h"
@@ -30,6 +31,8 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 private:
+	float StartDegree{};
+
 	UPROPERTY(EditAnywhere)
 	float OpenAngle = -90.0f;
 
@@ -39,7 +42,6 @@ private:
 	UPROPERTY(EditAnywhere)
 	ATriggerVolume* PressurePlate {};
 
-	AActor* ActivatingActor{};
-
-	float StartDegree{};
+	// Returns total mass in kg.
+	float TotalMassOfActorsOnTriggerArea();
 };
