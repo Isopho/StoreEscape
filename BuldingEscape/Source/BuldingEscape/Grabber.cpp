@@ -30,6 +30,8 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if (!PhysicsHandle){return; }
+
 	// if physics handle is attached 
 	if (PhysicsHandle->GrabbedComponent) 
 	{
@@ -40,7 +42,10 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 }
 
 
-void UGrabber::Grab() {
+void UGrabber::Grab() 
+{
+	if (!PhysicsHandle) { return; }
+
 	// The first object hit in reach.
 	auto HitResult = GetFirstPhysicsBodyInReach();
 	   	
@@ -61,7 +66,10 @@ void UGrabber::Grab() {
 }
 
 
-void UGrabber::ReleaseGrab() {
+void UGrabber::ReleaseGrab() 
+{
+	if (!PhysicsHandle) { return; }
+
 	// Release currently grabbed component
 	PhysicsHandle->ReleaseComponent();
 }
@@ -106,13 +114,6 @@ const FHitResult UGrabber::GetFirstPhysicsBodyInReach() const
 		FCollisionObjectQueryParams{ECollisionChannel::ECC_PhysicsBody},
 		CQParams
 	);
-
-	/// see what we hit
-	if (FoundHit) 
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Hit: %s"), *(Hit.GetActor()->GetName()));
-	}
-
 	return Hit;
 }
 

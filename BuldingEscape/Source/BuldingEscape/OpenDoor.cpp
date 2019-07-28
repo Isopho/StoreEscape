@@ -20,6 +20,11 @@ void UOpenDoor::BeginPlay()
 	Super::BeginPlay();
 
 	StartDegree = GetOwner()->GetActorRotation().Yaw;
+
+	if (!PressurePlate)
+	{
+		UE_LOG(LogTemp, Error, TEXT("TriggerVolume missing on %s"), *(GetOwner()->GetName()));
+	}
 	
 }
 
@@ -43,6 +48,8 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 float UOpenDoor::TotalMassOfActorsOnTriggerArea()
 {
+	if (!PressurePlate) { return 0.0f; }
+
 	float TotalMass = 0.0f;
 	
 	// Find all actors in/on trigger area
