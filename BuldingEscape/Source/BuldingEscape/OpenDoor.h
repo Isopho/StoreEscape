@@ -13,6 +13,9 @@
 #include "OpenDoor.generated.h"
 
 
+/// Class for blueprint to open the door.
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FDoorEvent);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BULDINGESCAPE_API UOpenDoor : public UActorComponent
 {
@@ -21,6 +24,12 @@ class BULDINGESCAPE_API UOpenDoor : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UOpenDoor();
+
+	UPROPERTY(BlueprintAssignable)
+		FDoorEvent OpenRequest;
+
+	UPROPERTY(BlueprintAssignable)
+		FDoorEvent CloseRequest;
 
 protected:
 	// Called when the game starts
@@ -34,14 +43,15 @@ private:
 	float StartDegree{};
 
 	UPROPERTY(EditAnywhere)
-	float OpenAngle = -90.0f;
+		float TriggerMass = 10.0f;
 
 	UPROPERTY(EditAnywhere)
-	float DoorOpenCloseDuration = 1.0f;
-
-	UPROPERTY(EditAnywhere)
-	ATriggerVolume* PressurePlate {};
+		ATriggerVolume* PressurePlate {};
 
 	// Returns total mass in kg.
 	float TotalMassOfActorsOnTriggerArea();
+
+	void OpenDoor();
+
+	void CloseDoor();
 };

@@ -34,15 +34,13 @@ void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (TotalMassOfActorsOnTriggerArea() > 10.0f && std::abs(GetOwner()->GetActorRotation().Yaw - (StartDegree + OpenAngle)) > 1.0f)
+	if (TotalMassOfActorsOnTriggerArea() > TriggerMass)
 	{
-		FRotator DoorRotator{ 0.0f,DeltaTime * OpenAngle / DoorOpenCloseDuration,0.0f };
-		GetOwner()->AddActorLocalRotation(DoorRotator);
-	}	
-	else if (!(TotalMassOfActorsOnTriggerArea() > 10.0f) && std::abs(GetOwner()->GetActorRotation().Yaw - StartDegree) > 1.0f)
+		OpenDoor();
+	} 
+	else
 	{
-		FRotator DoorRotator{ 0.0f,DeltaTime * (-OpenAngle) / DoorOpenCloseDuration,0.0f };
-		GetOwner()->AddActorLocalRotation(DoorRotator);
+		CloseDoor();
 	}
 }
 
@@ -64,5 +62,15 @@ float UOpenDoor::TotalMassOfActorsOnTriggerArea()
 	}
 
 	return TotalMass;
+}
+
+void UOpenDoor::OpenDoor()
+{
+	OpenRequest.Broadcast();
+}
+
+void UOpenDoor::CloseDoor()
+{
+	CloseRequest.Broadcast();
 }
 

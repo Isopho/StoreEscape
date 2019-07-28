@@ -46,14 +46,14 @@ public:
 
 private:
 	UPROPERTY(EditAnywhere)
-	//How far the player can reach.
-	float Reach = 180.0f;
+		//How far the player can reach.
+		float Reach = 180.0f;
 
 	UPROPERTY()
-	UPhysicsHandleComponent* PhysicsHandle{};
+		UPhysicsHandleComponent* PhysicsHandle{};
 
 	UPROPERTY()
-	UInputComponent* InputComponent{};
+		UInputComponent* InputComponent{};
 
 	// Ray-cast and grab whats in reach.
 	void Grab();
