@@ -77,3 +77,9 @@ DerivedDataCache/*
 # Unreal Starter kit
 Content/StarterContent/Textures
 Content/StarterContent/HDRI
+
+# Additional kits
+Content/IndustryPropsPack6/
+Content/ModularBuildingSet/
+Content/PhotoR_Backgrounds/
+Content/SoulCity/
