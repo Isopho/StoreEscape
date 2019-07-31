@@ -20,7 +20,6 @@ void UActivator::BeginPlay()
 {
 	Super::BeginPlay();
 
-	AcquirePhysicsHandleComponent();
 	SetupInputComponent();
 }
 
@@ -29,57 +28,44 @@ void UActivator::BeginPlay()
 void UActivator::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	if (!PhysicsHandle) { return; }
-
-	// if physics handle is attached 
-	if (PhysicsHandle->GrabbedComponent)
-	{
-		// move what player is holding
-		auto ReachLine = GetReachLine();
-		PhysicsHandle->SetTargetLocation(ReachLine.End);
-	}
+	
 }
 
 
 void UActivator::Activate()
 {
-	if (!PhysicsHandle) { return; }
+	UE_LOG(LogTemp, Warning, TEXT("Trying to use something."));
 
 	// The first object hit in reach.
-	auto HitResult = GetFirstPhysicsBodyInReach();
+	auto HitResult = GetFirstActorInReach();
+
+
 
 	// The component that will be grabbed
-	auto ComponentToGrab = HitResult.GetComponent();
+	//auto ComponentToGrab = HitResult.GetComponent();
 
 	/// If we hit something then attach a physics handle
 	if (HitResult.GetActor())
 	{
-		PhysicsHandle->GrabComponent(
-			ComponentToGrab,
-			NAME_None, //no bones needed
-			ComponentToGrab->GetOwner()->GetActorLocation(),
-			true
-		);
+		UActivatable* Activatable = HitResult.GetActor()->FindComponentByClass<UActivatable>();
+		UE_LOG(LogTemp, Warning, TEXT("Trying to use %s"), *(HitResult.GetActor()->GetName()));
+
+		if (Activatable)
+		{
+			Activatable->ActivateActivatable();
+			UE_LOG(LogTemp, Warning, TEXT("Used %s"), *(HitResult.GetActor()->GetName()));
+		}
 	}
 
 }
 
-void UActivator::AcquirePhysicsHandleComponent()
-{
-	PhysicsHandle = GetOwner()->FindComponentByClass<UPhysicsHandleComponent>();
-	if (!PhysicsHandle)
-	{
-		UE_LOG(LogTemp, Error, TEXT("UPhysicsHandleComponent missing on %s"), *(GetOwner()->GetName()));
-	}
-}
 
 void UActivator::SetupInputComponent()
 {
 	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
 	if (InputComponent)
 	{
-		InputComponent->BindAction("Grab", EInputEvent::IE_Pressed, this, &UActivator::Activate);
+		InputComponent->BindAction("Activate", EInputEvent::IE_Pressed, this, &UActivator::Activate);
 	}
 	else
 	{
@@ -87,7 +73,7 @@ void UActivator::SetupInputComponent()
 	}
 }
 
-const FHitResult UActivator::GetFirstPhysicsBodyInReach() const
+const FHitResult UActivator::GetFirstActorInReach() const
 {
 	auto ReachLine = GetReachLine();
 
@@ -96,11 +82,11 @@ const FHitResult UActivator::GetFirstPhysicsBodyInReach() const
 	FHitResult Hit{};
 	FCollisionQueryParams CQParams{ NAME_None, false, GetOwner() };
 
-	bool FoundHit = GetWorld()->LineTraceSingleByObjectType(
+	bool FoundHit = GetWorld()->LineTraceSingleByChannel(
 		OUT Hit,
 		ReachLine.Start,
 		ReachLine.End,
-		FCollisionObjectQueryParams{ ECollisionChannel::ECC_PhysicsBody },
+		ECollisionChannel::ECC_Visibility,
 		CQParams
 	);
 	return Hit;

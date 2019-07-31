@@ -11,6 +11,10 @@
 #include "Components/ActorComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/PrimitiveComponent.h"
+
+
+#include "Activatable.h"
+
 #include "Activator.generated.h"
 
 
@@ -50,22 +54,16 @@ private:
 		float Reach = 180.0f;
 
 	UPROPERTY()
-		UPhysicsHandleComponent* PhysicsHandle {};
-
-	UPROPERTY()
 		UInputComponent* InputComponent {};
 
 	// Ray-cast and grab whats in reach.
 	void Activate();
 
-	// Find (assumed) attached UPhysicsHandleComponent
-	void AcquirePhysicsHandleComponent();
-
 	// Setup (assumed) attached InputComponent
 	void SetupInputComponent();
 
 	// Return hit for fist physics body in reach
-	const FHitResult GetFirstPhysicsBodyInReach() const;
+	const FHitResult GetFirstActorInReach() const;
 
 	// Returns a struct with pair of Vectors that mark the start and the end of the reach line.
 	const FLine GetReachLine() const;

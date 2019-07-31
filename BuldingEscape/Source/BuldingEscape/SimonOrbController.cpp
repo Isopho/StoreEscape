@@ -14,6 +14,11 @@ USimonOrbController::USimonOrbController()
 }
 
 
+void USimonOrbController::ActivateActivatable()
+{
+	FlareSimonOrb();
+}
+
 // Called when the game starts
 void USimonOrbController::BeginPlay()
 {
@@ -31,9 +36,6 @@ void USimonOrbController::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	if (GetWorld()->GetTimeSeconds() - realtimeSeconds > 5.0f)
 	{
 		realtimeSeconds = GetWorld()->GetTimeSeconds();
-
-		UE_LOG(LogTemp, Warning, TEXT("Flaring Simon orb: %s"), *(GetOwner()->GetName()));
-		FlareSimonOrb();
 	}
 
 

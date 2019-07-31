@@ -12,13 +12,15 @@
 #include "Engine/TriggerVolume.h"
 #include "GenericPlatform/GenericPlatformMath.h"
 
+#include "Activatable.h"
+
 #include "SimonOrbController.generated.h"
 
 /// Class for blueprint to activate the orbs flare, with the duration in seconds.
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSimonOrbFlare, float, FlareDuration);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class BULDINGESCAPE_API USimonOrbController : public UActorComponent
+class BULDINGESCAPE_API USimonOrbController : public UActivatable
 {
 	GENERATED_BODY()
 
@@ -33,6 +35,8 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 		FOnSimonOrbFlare FlareOrbRequest;
+
+	virtual void ActivateActivatable();
 
 protected:
 	// Called when the game starts
