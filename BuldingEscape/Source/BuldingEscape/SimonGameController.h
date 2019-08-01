@@ -4,6 +4,10 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "TimerManager.h"
+#include "Engine/World.h"
+#include "Engine/EngineTypes.h"
+#include "SimonOrbController.h"
 #include "SimonGameController.generated.h"
 
 
@@ -35,6 +39,10 @@ private:
 	UPROPERTY(EditAnywhere)
 		uint32 BaseGameSpeed = 1;
 
+
+	UPROPERTY(EditAnywhere)
+		uint32 GameRounds = 7;
+
 	uint32 CurrentGameRound{};
 
 	bool GameWon = false;	
@@ -44,4 +52,10 @@ private:
 	TArray<int32> GenerateRandomOrbSequence(int32 SequenceLength);
 
 	bool StartGameRound();
+
+	void PlayOrbSequence(TArray<int32> OrbSequence, float OrbFlareTime);
+
+	UFUNCTION()
+	void FlareOrb(int32 OrbNumber, float Duration);
+	
 };

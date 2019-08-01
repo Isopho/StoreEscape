@@ -47,12 +47,12 @@ void UActivator::Activate()
 	/// If we hit something then attach a physics handle
 	if (HitResult.GetActor())
 	{
-		UActivatable* Activatable = HitResult.GetActor()->FindComponentByClass<UActivatable>();
+		UActivationReceiver* ActivationReceiver = HitResult.GetActor()->FindComponentByClass<UActivationReceiver>();
 		UE_LOG(LogTemp, Warning, TEXT("Trying to use %s"), *(HitResult.GetActor()->GetName()));
 
-		if (Activatable)
+		if (ActivationReceiver)
 		{
-			Activatable->ActivateActivatable();
+			ActivationReceiver->DoActivationAction();
 			UE_LOG(LogTemp, Warning, TEXT("Used %s"), *(HitResult.GetActor()->GetName()));
 		}
 	}

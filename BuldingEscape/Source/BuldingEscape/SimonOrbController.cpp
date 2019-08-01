@@ -14,9 +14,9 @@ USimonOrbController::USimonOrbController()
 }
 
 
-void USimonOrbController::ActivateActivatable()
+void USimonOrbController::DoActivationAction()
 {
-	FlareSimonOrb();
+	FlareSimonOrb(1.0f);
 }
 
 // Called when the game starts
@@ -42,8 +42,8 @@ void USimonOrbController::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	// ...
 }
 
-void USimonOrbController::FlareSimonOrb() const
+void USimonOrbController::FlareSimonOrb(float Duration) const
 {
-	FlareOrbRequest.Broadcast(1.0f);
+	FlareOrbRequest.Broadcast(Duration);
 }
 

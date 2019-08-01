@@ -13,7 +13,7 @@
 #include "Components/PrimitiveComponent.h"
 
 
-#include "Activatable.h"
+#include "ActivationReceiver.h"
 
 #include "Activator.generated.h"
 

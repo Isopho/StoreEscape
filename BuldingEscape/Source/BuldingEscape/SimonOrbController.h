@@ -12,7 +12,7 @@
 #include "Engine/TriggerVolume.h"
 #include "GenericPlatform/GenericPlatformMath.h"
 
-#include "Activatable.h"
+#include "ActivationReceiver.h"
 
 #include "SimonOrbController.generated.h"
 
@@ -20,7 +20,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSimonOrbFlare, float, FlareDuration);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class BULDINGESCAPE_API USimonOrbController : public UActivatable
+class BULDINGESCAPE_API USimonOrbController : public UActivationReceiver
 {
 	GENERATED_BODY()
 
@@ -31,12 +31,12 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void FlareSimonOrb() const;
+	void FlareSimonOrb(float Duration) const;
 
 	UPROPERTY(BlueprintAssignable)
 		FOnSimonOrbFlare FlareOrbRequest;
 
-	virtual void ActivateActivatable();
+	virtual void DoActivationAction() override;
 
 protected:
 	// Called when the game starts
