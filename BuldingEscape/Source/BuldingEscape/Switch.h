@@ -7,7 +7,6 @@
 #include "ActivationReceiver.h"
 #include "Switch.generated.h"
 
-
 /// Class for blueprint to activate the orbs flare, with the duration in seconds.
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSwitchActivation, AActor*, ActivatedSwtichActor);
 
@@ -22,12 +21,7 @@ public:
 
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-	//UFUNCTION()
-	// Register a Delegate to be called upon switch activation.
-	//void RegisterDelegateToSwitchActivation(UActorComponent RegisteringActorComponent, void (UActorComponent::* SwitchDelegate)(void));
-
-
+	   
 	UPROPERTY(BlueprintAssignable)
 		FOnSwitchActivation OnSwitchActivation;
 

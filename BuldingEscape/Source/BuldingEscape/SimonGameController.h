@@ -12,6 +12,14 @@
 
 class USimonOrbController;
 
+UENUM()
+enum SimonRoundStatus
+{
+	RoundLost			UMETA(DisplayName = "RoundLost"),
+	ContinueRound		UMETA(DisplayName = "ContinueRound"),
+	RoundWon			UMETA(DisplayName = "RoundWon"),
+};
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BULDINGESCAPE_API USimonGameController : public UActorComponent
 {
@@ -39,15 +47,11 @@ private:
 		TArray<AActor*> SimonOrbs {};
 
 	UPROPERTY(EditAnywhere)
-		uint32 GameRoundsToWin {};
+		uint32 GameRoundsToWin {5};
 
 	UPROPERTY(EditAnywhere)
 		uint32 BaseGameSpeed = 1;
-
-
-	UPROPERTY(EditAnywhere)
-		uint32 GameRounds = 7;
-
+	
 	uint32 CurrentGameRound{};
 
 	bool GameWon = false;	
@@ -62,5 +66,27 @@ private:
 
 	UFUNCTION()
 	void FlareOrb(int32 OrbNumber);
+
+	TArray<int32> CurrentOrbSequenceTarget{};
 	
+	TArray<int32> CurrentOrbSequenceInput{};
+
+	bool IsInputSequenceOkay();
+
+	SimonRoundStatus CheckRoundStatus();
+
+	UFUNCTION()
+	void StarNewGame();
+
+	UFUNCTION()
+	void InitNextRound();
+
+	UFUNCTION()
+	void StartNewRound();
+
+	void GameLost();
+
+	bool AwaitingInput = false;
+
+	float CurrentOrbFlareDuration{2.0f};
 };

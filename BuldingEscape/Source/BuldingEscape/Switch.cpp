@@ -31,11 +31,3 @@ void USwitch::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponen
 
 	// ...
 }
-
-/*// Register a Delegate to be called upon switch activation.
-void USwitch::RegisterDelegateToSwitchActivation(UActorComponent RegisteringActorComponent, void (UActorComponent::* SwitchDelegate)(void))
-{
-	//OnSwitchActivation.AddDynamic(RegisteringActorComponent,SwitchDelegate);
-}*/
-
-
