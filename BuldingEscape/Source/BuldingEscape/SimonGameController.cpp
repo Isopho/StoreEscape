@@ -23,6 +23,21 @@ void USimonGameController::BeginPlay()
 	// TODO: check if all Actors in the SimonOrbs TArray have a SimonOrbController
 	// remove the the ones that do not have one.
 
+
+	// register gamecontroller remove the ones that are unsuccessful
+
+	for (AActor* SimonOrb : SimonOrbs) 
+	{
+		USimonOrbController* SimonOrbController = SimonOrb->FindComponentByClass<USimonOrbController>();
+		if (SimonOrbController)
+		{
+			// TODO check for failure and act accordingly
+			SimonOrbController->OnSwitchActivation.AddDynamic(this, &USimonGameController::OnNotificationOfSimonOrbActivation);
+
+			//SimonOrbController->RegisterDelegateToSwitchActivation(this, &USimonGameController::OnNotificationOfSimonOrbActivation);
+		}
+	}
+
 	// Prepare first game.
 	//while (!GameWon) {
 		// prepare new game
@@ -42,7 +57,17 @@ void USimonGameController::BeginPlay()
 
 
 		// play sequence
+		// set orb flare times
 		float FlareTimePerOrb = 20.0f / (9 + (CurrentGameRound * BaseGameSpeed));
+		for (AActor* SimonOrb : SimonOrbs) 
+		{
+			USimonOrbController* SimonOrbController = SimonOrb->FindComponentByClass<USimonOrbController>();
+			if (SimonOrbController)
+			{
+				SimonOrbController->SetFlareTime(FlareTimePerOrb);
+				SimonOrbController->SetPlayerActivatable(true);
+			}
+		}
 
 		PlayOrbSequence(CurrentOrbSequence, FlareTimePerOrb);
 		
@@ -101,17 +126,17 @@ void USimonGameController::PlayOrbSequence(TArray<int32> OrbSequence, float OrbF
 	{
 		FTimerHandle TimerHandle{};
 		FTimerDelegate TimerDel{};
-		TimerDel.BindUFunction(this, FName("FlareOrb"), OrbSequence[i], OrbFlareTime);
+		TimerDel.BindUFunction(this, FName("FlareOrb"), OrbSequence[i]);
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, i * OrbFlareTime * 1.05f, false);
 	}
 }
 
-void USimonGameController::FlareOrb(int32 OrbNumber, float Duration)
+void USimonGameController::FlareOrb(int32 OrbNumber)
 {	
 	USimonOrbController* SimonOrbController = SimonOrbs[OrbNumber]->FindComponentByClass<USimonOrbController>();
 	if (SimonOrbController)
 	{
-		SimonOrbController->FlareSimonOrb(Duration);
+		SimonOrbController->FlareSimonOrb();
 	}
 }
 
@@ -129,6 +154,22 @@ void USimonGameController::TickComponent(float DeltaTime, ELevelTick TickType, F
 bool USimonGameController::IsGameWon() const
 {
 	return GameWon;
+}
+
+void USimonGameController::OnNotificationOfSimonOrbActivation(AActor* ActivatedSimonOrb)
+{
+	UE_LOG(LogTemp, Warning, TEXT("NotifyOfOrbActivation!"));
+	for (int32 i = 0; i < SimonOrbs.Num(); ++i)
+	{
+		if (SimonOrbs[i] == ActivatedSimonOrb)
+		{
+			// do something with i
+			
+
+			UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("Notification: SimonOrb number %d was activated."), i));
+		}
+
+	}
 }
 
 

@@ -57,7 +57,7 @@ private:
 		UInputComponent* InputComponent {};
 
 	// Ray-cast and grab whats in reach.
-	void Activate();
+	void ActivateAction();
 
 	// Setup (assumed) attached InputComponent
 	void SetupInputComponent();

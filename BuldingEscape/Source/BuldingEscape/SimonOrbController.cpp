@@ -16,7 +16,37 @@ USimonOrbController::USimonOrbController()
 
 void USimonOrbController::DoActivationAction()
 {
-	FlareSimonOrb(1.0f);
+	if (PlayerActivatable) {
+		PlayerActivatable = false;
+		FlareSimonOrb();
+
+		OnSwitchActivation.Broadcast(GetOwner());
+
+		FTimerHandle TimerHandle{};
+		FTimerDelegate TimerDel{};
+		TimerDel.BindUFunction(this, FName("SetPlayerActivatable"), true);
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, FlareTime, false);
+	}
+}
+
+void USimonOrbController::SetFlareTime(float FlareTime)
+{
+	this->FlareTime = FlareTime;
+}
+
+float USimonOrbController::GetFlareTime() const
+{
+	return FlareTime;
+}
+
+void USimonOrbController::SetPlayerActivatable(bool PlayerActivatable)
+{
+	this->PlayerActivatable = PlayerActivatable;
+}
+
+bool USimonOrbController::IsPlayerActivatable() const
+{
+	return PlayerActivatable;
 }
 
 // Called when the game starts
@@ -33,17 +63,12 @@ void USimonOrbController::TickComponent(float DeltaTime, ELevelTick TickType, FA
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if (GetWorld()->GetTimeSeconds() - realtimeSeconds > 5.0f)
-	{
-		realtimeSeconds = GetWorld()->GetTimeSeconds();
-	}
-
-
 	// ...
 }
 
-void USimonOrbController::FlareSimonOrb(float Duration) const
+void USimonOrbController::FlareSimonOrb() const
 {
-	FlareOrbRequest.Broadcast(Duration);
+	FlareOrbRequest.Broadcast(FlareTime);
+
 }
 

@@ -10,12 +10,13 @@
 #include "SimonOrbController.h"
 #include "SimonGameController.generated.h"
 
+class USimonOrbController;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BULDINGESCAPE_API USimonGameController : public UActorComponent
 {
 	GENERATED_BODY()
-
+		
 public:	
 	// Sets default values for this component's properties
 	USimonGameController();
@@ -24,6 +25,10 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	bool IsGameWon() const;
+
+	UFUNCTION()
+	void OnNotificationOfSimonOrbActivation(AActor* ActivatedSimonOrb);
+
 
 protected:
 	// Called when the game starts
@@ -56,6 +61,6 @@ private:
 	void PlayOrbSequence(TArray<int32> OrbSequence, float OrbFlareTime);
 
 	UFUNCTION()
-	void FlareOrb(int32 OrbNumber, float Duration);
+	void FlareOrb(int32 OrbNumber);
 	
 };

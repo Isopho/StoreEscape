@@ -32,7 +32,7 @@ void UActivator::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompo
 }
 
 
-void UActivator::Activate()
+void UActivator::ActivateAction()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Trying to use something."));
 
@@ -65,7 +65,7 @@ void UActivator::SetupInputComponent()
 	InputComponent = GetOwner()->FindComponentByClass<UInputComponent>();
 	if (InputComponent)
 	{
-		InputComponent->BindAction("Activate", EInputEvent::IE_Pressed, this, &UActivator::Activate);
+		InputComponent->BindAction("Activate", EInputEvent::IE_Pressed, this, &UActivator::ActivateAction);
 	}
 	else
 	{
