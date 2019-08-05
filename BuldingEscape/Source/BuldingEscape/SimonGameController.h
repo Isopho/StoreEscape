@@ -31,71 +31,75 @@ enum ESimonGameState
 };
 
 
-UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class USimonGameState : public UObject {
-	GENERATED_BODY()
+class  USimonGameState 
+{
 
 public:
 	USimonGameState();
-	USimonGameState(USimonGameController* SimonGameController);
-	~USimonGameState();
+	virtual ~USimonGameState();
+
+		virtual void OnStateEnter(USimonGameController* SimonGameController);
+
+		virtual void OnPlayerInput(int32 OrbNumber);
 
 protected:
 
-	UPROPERTY()
 		TWeakObjectPtr<USimonGameController> SimonGameController {};
 
-	UFUNCTION()
-		virtual void OnStateEnter();
-
-	UFUNCTION()
-		virtual void OnStateExit();
-
-	UFUNCTION()
-		virtual void OnPlayerInput(int32 OrbNumber);
 
 };
 
-class UPreparingRound : public USimonGameState {
+class  UPreparingRound : public USimonGameState 
+{
+public:
+	UPreparingRound();
+
+	virtual void OnStateEnter(USimonGameController* SimonGameController) override;
+
 protected:
-	UPreparingRound(USimonGameController* SimonGameController);
-
-	UFUNCTION()
-		virtual void OnStateEnter() override;
-
-	UFUNCTION()
+	
+	
 		TArray<int32> GenerateRandomOrbSequence(int32 SequenceLength);
 
-	UFUNCTION()
+	
 		void InitNextRound();
 };
 
-class UDisplayingTargetSequence : public USimonGameState {
-protected:
-	UFUNCTION()
-		virtual void OnStateEnter() override;
+class  UDisplayingTargetSequence : public USimonGameState 
+{
+	
+public:
 
-	UFUNCTION()
+	virtual void OnStateEnter(USimonGameController* SimonGameController) override;
+
+protected:
+
+	
 		void PlayOrbSequence(TArray<int32> OrbSequence);
 
 };
 
-class UAwaitingPlayerInput : public USimonGameState {
-protected:
-	UFUNCTION()
-		virtual void OnStateEnter() override;
+class  UAwaitingPlayerInput : public USimonGameState 
+{
+	
+public:
 
-	UFUNCTION()
-		virtual void OnPlayerInput(int32 OrbNumber) override;
-};
-
-class UGameWon : public USimonGameState {
 protected:
 
 };
 
-class UGameLost : public USimonGameState {
+class  UGameWon : public USimonGameState 
+{
+	
+public:
+
 protected:
+
+};
+
+class UGameLost : public USimonGameState 
+{
+	protected:
 
 };
 
@@ -197,6 +201,5 @@ private:
 
 	bool AwaitingInput = false;
 
-	UPROPERTY()
 	USimonGameState* CurrentSimonGameState;
 };
