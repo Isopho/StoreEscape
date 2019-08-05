@@ -13,11 +13,90 @@
 class USimonOrbController;
 
 UENUM()
-enum SimonRoundStatus
+enum ESimonRoundStatus
 {
 	RoundLost			UMETA(DisplayName = "RoundLost"),
 	ContinueRound		UMETA(DisplayName = "ContinueRound"),
 	RoundWon			UMETA(DisplayName = "RoundWon"),
+};
+
+UENUM()
+enum ESimonGameState
+{
+	GameLost    				UMETA(DisplayName = "GameLost"),
+	GameWon						UMETA(DisplayName = "GameWon"),
+	AwaitingPlayerInput			UMETA(DisplayName = "AwaitingPlayerInput"),
+	DisplayingTargetSequence	UMETA(DisplayName = "ContinueRDisplayingTargetSequenceound"),
+	PreparingRound				UMETA(DisplayName = "PreparingRound"),
+};
+
+
+UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
+class USimonGameState : public UObject {
+	GENERATED_BODY()
+
+public:
+	USimonGameState();
+	USimonGameState(USimonGameController* SimonGameController);
+	~USimonGameState();
+
+protected:
+
+	UPROPERTY()
+		TWeakObjectPtr<USimonGameController> SimonGameController {};
+
+	UFUNCTION()
+		virtual void OnStateEnter();
+
+	UFUNCTION()
+		virtual void OnStateExit();
+
+	UFUNCTION()
+		virtual void OnPlayerInput(int32 OrbNumber);
+
+};
+
+class UPreparingRound : public USimonGameState {
+protected:
+	UPreparingRound(USimonGameController* SimonGameController);
+
+	UFUNCTION()
+		virtual void OnStateEnter() override;
+
+	UFUNCTION()
+		TArray<int32> GenerateRandomOrbSequence(int32 SequenceLength);
+
+	UFUNCTION()
+		void InitNextRound();
+};
+
+class UDisplayingTargetSequence : public USimonGameState {
+protected:
+	UFUNCTION()
+		virtual void OnStateEnter() override;
+
+	UFUNCTION()
+		void PlayOrbSequence(TArray<int32> OrbSequence);
+
+};
+
+class UAwaitingPlayerInput : public USimonGameState {
+protected:
+	UFUNCTION()
+		virtual void OnStateEnter() override;
+
+	UFUNCTION()
+		virtual void OnPlayerInput(int32 OrbNumber) override;
+};
+
+class UGameWon : public USimonGameState {
+protected:
+
+};
+
+class UGameLost : public USimonGameState {
+protected:
+
 };
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -32,11 +111,44 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	bool IsGameWon() const;
+	UFUNCTION()
+		bool IsGameWon() const;
 
 	UFUNCTION()
-	void OnNotificationOfSimonOrbActivation(AActor* ActivatedSimonOrb);
+		void OnNotificationOfSimonOrbActivation(AActor* ActivatedSimonOrb);
+	   
+	UFUNCTION()
+		void SetSimonGameState(ESimonGameState NewState);
 
+	UFUNCTION()
+		void ResetGame();
+
+	UFUNCTION()
+		int32 GetNumberOfSimonOrbs() const;
+
+	UFUNCTION()
+		uint32 GetCurrentGameRound() const;
+
+	UFUNCTION()
+		void IncrementCurrentGameRound();
+	
+	UFUNCTION()
+		TArray<int32> GetCurrentOrbSequenceTarget();
+
+	UFUNCTION()
+		void SetCurrentOrbSequenceTarget(TArray<int32> NewTarget);
+
+	UFUNCTION()
+		float GetBaseGameSpeed();
+
+	UFUNCTION()
+		float GetCurrentOrbFlareDuration();
+
+	UFUNCTION()
+		void SetCurrentOrbFlareDuration(float NewFlareDuration);
+
+	UFUNCTION()
+		void FlareOrb(int32 OrbNumber);
 
 protected:
 	// Called when the game starts
@@ -50,43 +162,41 @@ private:
 		uint32 GameRoundsToWin {5};
 
 	UPROPERTY(EditAnywhere)
-		uint32 BaseGameSpeed = 1;
-	
-	uint32 CurrentGameRound{};
-
-	bool GameWon = false;	
-
-	void ResetGame();
-
-	TArray<int32> GenerateRandomOrbSequence(int32 SequenceLength);
-
-	bool StartGameRound();
-
-	void PlayOrbSequence(TArray<int32> OrbSequence, float OrbFlareTime);
-
-	UFUNCTION()
-	void FlareOrb(int32 OrbNumber);
+		float BaseGameSpeed {1.0f};
+		
+	uint32 CurrentGameRound{0};
 
 	TArray<int32> CurrentOrbSequenceTarget{};
+
+	bool GameIsWon = false;	
+
+	float CurrentOrbFlareDuration{ 2.0f };
+
+
+
+
+
+
+
+
+
 	
-	TArray<int32> CurrentOrbSequenceInput{};
 
 	bool IsInputSequenceOkay();
 
-	SimonRoundStatus CheckRoundStatus();
+	ESimonRoundStatus CheckRoundStatus();
 
 	UFUNCTION()
 	void StarNewGame();
 
-	UFUNCTION()
-	void InitNextRound();
 
 	UFUNCTION()
 	void StartNewRound();
 
-	void GameLost();
+	void GameIsLost();
 
 	bool AwaitingInput = false;
 
-	float CurrentOrbFlareDuration{2.0f};
+	UPROPERTY()
+	USimonGameState* CurrentSimonGameState;
 };
