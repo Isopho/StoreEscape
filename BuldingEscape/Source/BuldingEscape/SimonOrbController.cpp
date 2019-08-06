@@ -16,15 +16,15 @@ USimonOrbController::USimonOrbController()
 
 void USimonOrbController::DoActivationAction()
 {
-	if (PlayerActivatable) {
-		PlayerActivatable = false;
+	if (PlayerActivatable && !ActivationBlocked) {
+		ActivationBlocked = true;
 		FlareSimonOrb();
 
 		OnSwitchActivation.Broadcast(GetOwner());
 
 		FTimerHandle TimerHandle{};
 		FTimerDelegate TimerDel{};
-		TimerDel.BindUFunction(this, FName("SetPlayerActivatable"), true);
+		TimerDel.BindUFunction(this, FName("SetActivationBlocked"), false);
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, FlareTime, false);
 	}
 }
@@ -42,6 +42,11 @@ float USimonOrbController::GetFlareTime() const
 void USimonOrbController::SetPlayerActivatable(bool PlayerActivatable)
 {
 	this->PlayerActivatable = PlayerActivatable;
+}
+
+void USimonOrbController::SetActivationBlocked(bool ActivationBlocked)
+{
+	this->ActivationBlocked = ActivationBlocked;
 }
 
 bool USimonOrbController::IsPlayerActivatable() const

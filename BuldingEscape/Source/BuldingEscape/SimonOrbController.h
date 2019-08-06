@@ -45,7 +45,10 @@ public:
 	float GetFlareTime() const;
 	
 	UFUNCTION()
-	void SetPlayerActivatable(bool PlayerActivatable);
+		void SetPlayerActivatable(bool PlayerActivatable);
+
+	UFUNCTION()
+		void SetActivationBlocked(bool ActivationBlocked);
 
 	bool IsPlayerActivatable() const;
 
@@ -57,4 +60,6 @@ private:
 	float FlareTime = 1.0f;
 
 	bool PlayerActivatable = false;		
+
+	bool ActivationBlocked = false;
 };

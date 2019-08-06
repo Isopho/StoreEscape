@@ -33,14 +33,16 @@ enum ESimonGameState
 
 class  USimonGameState 
 {
-
 public:
-	USimonGameState();
+	USimonGameState(const USimonGameController* SimonGameController);
+
 	virtual ~USimonGameState();
 
-		virtual void OnStateEnter(USimonGameController* SimonGameController);
+	virtual void OnStateEnter();
 
-		virtual void OnPlayerInput(int32 OrbNumber);
+	virtual void OnStateExit();
+
+	virtual void OnPlayerInput(int32 OrbNumber);
 
 protected:
 
@@ -52,46 +54,54 @@ protected:
 class  UPreparingRound : public USimonGameState 
 {
 public:
-	UPreparingRound();
+	UPreparingRound(const USimonGameController* SimonGameController) : USimonGameState(SimonGameController) {};
+	virtual void OnStateEnter() override;
 
-	virtual void OnStateEnter(USimonGameController* SimonGameController) override;
-
-protected:
-	
+protected:	
 	
 		TArray<int32> GenerateRandomOrbSequence(int32 SequenceLength);
-
 	
 		void InitNextRound();
 };
 
 class  UDisplayingTargetSequence : public USimonGameState 
-{
-	
+{	
 public:
+	UDisplayingTargetSequence(const USimonGameController* SimonGameController) : USimonGameState(SimonGameController) {};
 
-	virtual void OnStateEnter(USimonGameController* SimonGameController) override;
+	virtual void OnStateEnter() override;
 
 protected:
-
 	
-		void PlayOrbSequence(TArray<int32> OrbSequence);
+	void PlayOrbSequence(TArray<int32> OrbSequence);
 
 };
 
 class  UAwaitingPlayerInput : public USimonGameState 
-{
-	
+{	
 public:
+	UAwaitingPlayerInput(const USimonGameController* SimonGameController) : USimonGameState(SimonGameController) {};
 
+	virtual ~UAwaitingPlayerInput();
+
+	virtual void OnStateEnter() override;
+
+	virtual void OnStateExit() override;
+
+	virtual void OnPlayerInput(int32 OrbNumber) override;
 protected:
 
+	TArray<int32> CurrentOrbSequenceInput{};
+
+	ESimonRoundStatus CheckRoundStatus();
+
+	bool IsInputSequenceOkay();
 };
 
 class  UGameWon : public USimonGameState 
-{
-	
+{	
 public:
+	UGameWon(const USimonGameController* SimonGameController) : USimonGameState(SimonGameController) {};
 
 protected:
 
@@ -99,7 +109,12 @@ protected:
 
 class UGameLost : public USimonGameState 
 {
-	protected:
+public:
+	UGameLost(const USimonGameController* SimonGameController) : USimonGameState(SimonGameController) {};
+
+	virtual void OnStateEnter() override;
+protected:
+
 
 };
 
@@ -134,19 +149,22 @@ public:
 		uint32 GetCurrentGameRound() const;
 
 	UFUNCTION()
+		uint32 GetGameRoundsToWin() const;
+
+	UFUNCTION()
 		void IncrementCurrentGameRound();
 	
 	UFUNCTION()
-		TArray<int32> GetCurrentOrbSequenceTarget();
+		TArray<int32> GetCurrentOrbSequenceTarget() const;
 
 	UFUNCTION()
 		void SetCurrentOrbSequenceTarget(TArray<int32> NewTarget);
 
 	UFUNCTION()
-		float GetBaseGameSpeed();
+		float GetBaseGameSpeed() const;
 
 	UFUNCTION()
-		float GetCurrentOrbFlareDuration();
+		float GetCurrentOrbFlareDuration() const;
 
 	UFUNCTION()
 		void SetCurrentOrbFlareDuration(float NewFlareDuration);
@@ -154,11 +172,16 @@ public:
 	UFUNCTION()
 		void FlareOrb(int32 OrbNumber);
 
+	UFUNCTION()
+		void SetAllOrbsPlayerActivatable(bool Activatable);
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
 private:	
+
+	USimonGameState* CurrentSimonGameState;
+
 	UPROPERTY(EditAnywhere)
 		TArray<AActor*> SimonOrbs {};
 
@@ -176,30 +199,22 @@ private:
 
 	float CurrentOrbFlareDuration{ 2.0f };
 
-
-
-
-
-
-
-
-
 	
 
-	bool IsInputSequenceOkay();
 
-	ESimonRoundStatus CheckRoundStatus();
+
+
+
+
+
 
 	UFUNCTION()
 	void StarNewGame();
 
 
-	UFUNCTION()
-	void StartNewRound();
 
 	void GameIsLost();
 
 	bool AwaitingInput = false;
 
-	USimonGameState* CurrentSimonGameState;
 };
