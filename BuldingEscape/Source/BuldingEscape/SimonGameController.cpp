@@ -39,9 +39,19 @@ void USimonGameController::SetCurrentOrbSequenceTarget(TArray<int32> NewTarget)
 	CurrentOrbSequenceTarget = NewTarget;
 }
 
-float USimonGameController::GetBaseGameSpeed() const
+float USimonGameController::GetBaseOrbFlareDuration() const
 {
-	return BaseGameSpeed;
+	return BaseOrbFlareDuration;
+}
+
+float USimonGameController::GetGameSpeedIncreaseRate() const
+{
+	return GameSpeedIncreaseRate;
+}
+
+float USimonGameController::GetDifficultyBumpLevels() const
+{
+	return DifficultyBumpLevels;
 }
 
 float USimonGameController::GetCurrentOrbFlareDuration() const
@@ -67,24 +77,22 @@ void USimonGameController::SetCurrentOrbFlareDuration(float NewFlareDuration)
 void USimonGameController::BeginPlay()
 {
 	Super::BeginPlay();
-	
-
-	// TODO: check if all Actors in the SimonOrbs TArray have a SimonOrbController
-	// remove the the ones that do not have one.
-
-
-	// register gamecontroller remove the ones that are unsuccessful
-
-	for (AActor* SimonOrb : SimonOrbs) 
-	{
-		USimonOrbController* SimonOrbController = SimonOrb->FindComponentByClass<USimonOrbController>();
-		if (SimonOrbController)
+			   
+	// Remove AActor* from SimonOrbs that are not a SimonOrb to prevent malfunction, connect to Switch Action of the rest.
+	SimonOrbs = SimonOrbs.FilterByPredicate([this](const AActor* Actor) {
+		USimonOrbController* SimonOrbController = Actor->FindComponentByClass<USimonOrbController>();
+		if (!(SimonOrbController))
 		{
-			// TODO check for failure and act accordingly
-			SimonOrbController->OnSwitchActivation.AddDynamic(this, &USimonGameController::OnNotificationOfSimonOrbActivation);
+			UE_LOG(LogTemp, Error, TEXT("%s"), *FString::Printf(TEXT("USimonGameController: USimonOrbController missing on %s! Add a USimonOrbController to it or remove it from the USimonGameController of %s!"), *Actor->GetName(), *this->GetOwner()->GetName()));
+			return false;
 		}
-	}
-
+		else
+		{
+			SimonOrbController->OnSwitchActivation.AddDynamic(this, &USimonGameController::OnNotificationOfSimonOrbActivation);
+			return true;
+		}
+	});
+	   	  
 	ResetGame();
 
 	SetSimonGameState(ESimonGameState::PreparingRound);
@@ -92,9 +100,6 @@ void USimonGameController::BeginPlay()
 
 void USimonGameController::ResetGame()
 {
-	//TODO remove awaiting input (should not be nessecary)
-	AwaitingInput = false;
-
 	CurrentGameRound = 0;
 	CurrentOrbSequenceTarget.Empty();
 }
@@ -105,9 +110,6 @@ int32 USimonGameController::GetNumberOfSimonOrbs() const
 }
 
 
-
-
-/// machine function
 void USimonGameController::FlareOrb(int32 OrbNumber)
 {	
 	USimonOrbController* SimonOrbController = SimonOrbs[OrbNumber]->FindComponentByClass<USimonOrbController>();
@@ -117,20 +119,6 @@ void USimonGameController::FlareOrb(int32 OrbNumber)
 	}
 }
 
-
-
-//split to gamelost & prep round
-void USimonGameController::StarNewGame()
-{
-
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("Starting new Simon Game.")));
-	// reset game
-	ResetGame();
-}
-
-
-
-/// input state
 void USimonGameController::SetAllOrbsPlayerActivatable(bool Activatable)
 {
 	for (AActor* SimonOrb : SimonOrbs)
@@ -143,21 +131,6 @@ void USimonGameController::SetAllOrbsPlayerActivatable(bool Activatable)
 	}
 }
 
-
-/// game over state
-void USimonGameController::GameIsLost()
-{
-
-	FTimerHandle TimerHandle{};
-	FTimerDelegate TimerDel{};
-	TimerDel.BindUFunction(this, FName("StarNewGame"));
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, CurrentOrbFlareDuration * 2.0f, false);
-	StarNewGame();
-}
-
-
-
-
 /// useless
 // Called every frame
 void USimonGameController::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -168,10 +141,9 @@ void USimonGameController::TickComponent(float DeltaTime, ELevelTick TickType, F
 /// machine function
 bool USimonGameController::IsGameWon() const
 {
-	return GameIsWon;
+	return bGameIsWon;
 }
 
-/// machine & input state
 void USimonGameController::OnNotificationOfSimonOrbActivation(AActor* ActivatedSimonOrb)
 {
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("OnNotificationOfSimonOrbActivation.")));
@@ -184,10 +156,6 @@ void USimonGameController::OnNotificationOfSimonOrbActivation(AActor* ActivatedS
 		}
 	}
 }
-
-
-
-
 
 void USimonGameController::SetSimonGameState(ESimonGameState NewState)
 {
@@ -202,27 +170,27 @@ void USimonGameController::SetSimonGameState(ESimonGameState NewState)
 	switch (NewState)
 	{
 	case GameLost:
-		CurrentSimonGameState = new UGameLost(this);
+		CurrentSimonGameState = new FGameLost(this);
 		CurrentSimonGameState->OnStateEnter();
 		break;
 	case GameWon:
-		CurrentSimonGameState = new UGameWon(this);
+		CurrentSimonGameState = new FGameWon(this);
 		CurrentSimonGameState->OnStateEnter();
 		break;
 	case AwaitingPlayerInput:
-		CurrentSimonGameState = new UAwaitingPlayerInput(this);
+		CurrentSimonGameState = new FAwaitingPlayerInput(this);
 		CurrentSimonGameState->OnStateEnter();
 		break;
 	case DisplayingTargetSequence:
-		CurrentSimonGameState = new UDisplayingTargetSequence(this);
+		CurrentSimonGameState = new FDisplayingTargetSequence(this);
 		CurrentSimonGameState->OnStateEnter();
 		break;
 	case PreparingRound:
-		CurrentSimonGameState = new UPreparingRound(this);
+		CurrentSimonGameState = new FPreparingRound(this);
 		CurrentSimonGameState->OnStateEnter();
 		break;
 	default:
-		CurrentSimonGameState = new UGameLost(this);
+		CurrentSimonGameState = new FGameLost(this);
 		CurrentSimonGameState->OnStateEnter();
 		break;
 	}
@@ -248,33 +216,33 @@ void USimonGameController::SetSimonGameStateAfterDelay(ESimonGameState NewState,
 }
 
 /* FSimonGameState  Class*/
-USimonGameState::USimonGameState(const USimonGameController* SimonGameController) : SimonGameState(ESimonGameState::NoState)
+FSimonGameState::FSimonGameState(const USimonGameController* SimonGameController) : SimonGameState(ESimonGameState::NoState)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("USimonGameState created.")));
 	this->SimonGameController = SimonGameController;
 }
 
-void USimonGameState::OnStateEnter()
+void FSimonGameState::OnStateEnter()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("USimonGameState OnStateEnter.")));
 }
 
-void USimonGameState::OnStateExit()
+void FSimonGameState::OnStateExit()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("USimonGameState OnStateExit.")));
 }
 
-USimonGameState::~USimonGameState()
+FSimonGameState::~FSimonGameState()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("USimonGameState destroyed.")));
 }
 
-void USimonGameState::OnPlayerInput(int32 OrbNumber)
+void FSimonGameState::OnPlayerInput(int32 OrbNumber)
 {
 	//UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("USimonGameState OnPlayerInput.")));
 }
 
-ESimonGameState USimonGameState::GetESimonGameState() const
+ESimonGameState FSimonGameState::GetESimonGameState() const
 {
 	return SimonGameState;
 }
@@ -283,12 +251,12 @@ ESimonGameState USimonGameState::GetESimonGameState() const
 
 /* FSimonGameState UPreparingRound Class*/
 
-ESimonGameState UPreparingRound::GetESimonGameState() const
+ESimonGameState FPreparingRound::GetESimonGameState() const
 {
 	return ESimonGameState::PreparingRound;
 }
 
-void UPreparingRound::OnStateEnter()
+void FPreparingRound::OnStateEnter()
 {
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("UPreparingRound OnStateEnter.")));
 
@@ -296,12 +264,12 @@ void UPreparingRound::OnStateEnter()
 	SimonGameController->SetSimonGameState(ESimonGameState::DisplayingTargetSequence);
 }
 
-int32 UPreparingRound::GetRandomOrbNumber()
+int32 FPreparingRound::GetRandomOrbNumber()
 {
 	return FMath::RandRange(0, SimonGameController->GetNumberOfSimonOrbs() - 1);
 }
 
-TArray<int32> UPreparingRound::GenerateRandomOrbSequence(int32 SequenceLength)
+TArray<int32> FPreparingRound::GenerateRandomOrbSequence(int32 SequenceLength)
 {
 	TArray<int32> OrbSequence{};
 
@@ -313,13 +281,16 @@ TArray<int32> UPreparingRound::GenerateRandomOrbSequence(int32 SequenceLength)
 	return OrbSequence;
 }
 
-void UPreparingRound::InitNextRound()
+void FPreparingRound::InitNextRound()
 {
-	// TODO relocate magic numbers
-
 	SimonGameController->IncrementCurrentGameRound();
 	
 	uint32 CurrentGameRound = SimonGameController->GetCurrentGameRound();
+
+	if (CurrentGameRound < 1)
+	{
+		return;
+	}
 
 
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("Initializing Round - %d"), CurrentGameRound));
@@ -330,29 +301,29 @@ void UPreparingRound::InitNextRound()
 
 	/// new generate sequence - adds to the last sequence
 
-	// 1 + 1 for every 10 levels
-	int32 NoOfNewTargets = FMath::TruncToInt((CurrentGameRound / 10.0f) + 1.0f);
+	// 1 + 1 for every X levels ( X = DifficultyBumpLevels)
+	int32 NoOfNewTargets = FMath::TruncToInt((CurrentGameRound / SimonGameController->GetDifficultyBumpLevels()) + 1.0f);
 
 	TArray<int32> NewOrbSeq = SimonGameController->GetCurrentOrbSequenceTarget();
 	NewOrbSeq.Append(GenerateRandomOrbSequence(NoOfNewTargets));
 
 	SimonGameController->SetCurrentOrbSequenceTarget(NewOrbSeq);
 
-	// play sequence
 	// set orb flare times
-	SimonGameController->SetCurrentOrbFlareDuration(15.0f / (9 + (CurrentGameRound * SimonGameController->GetBaseGameSpeed())));
+	float FLareDuration = SimonGameController->GetBaseOrbFlareDuration() / (1 + ((CurrentGameRound - 1)  * SimonGameController->GetGameSpeedIncreaseRate()));
+	SimonGameController->SetCurrentOrbFlareDuration(FLareDuration);
 }
 
 
 
 /* FSimonGameState UDisplayingTargetSequence Class*/
 
-ESimonGameState UDisplayingTargetSequence::GetESimonGameState() const
+ESimonGameState FDisplayingTargetSequence::GetESimonGameState() const
 {
 	return ESimonGameState::DisplayingTargetSequence;
 }
 
-void UDisplayingTargetSequence::OnStateEnter()
+void FDisplayingTargetSequence::OnStateEnter()
 {
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("UDisplayingTargetSequence OnStateEnter.")));
 	PlayOrbSequence(this->SimonGameController->GetCurrentOrbSequenceTarget());
@@ -364,7 +335,7 @@ void UDisplayingTargetSequence::OnStateEnter()
 	);
 }
 
-void UDisplayingTargetSequence::PlayOrbSequence(TArray<int32> OrbSequence)
+void FDisplayingTargetSequence::PlayOrbSequence(TArray<int32> OrbSequence)
 {
 	SimonGameController->FlareOrb(OrbSequence[0]);
 
@@ -377,29 +348,32 @@ void UDisplayingTargetSequence::PlayOrbSequence(TArray<int32> OrbSequence)
 	}
 }
 
-UAwaitingPlayerInput::~UAwaitingPlayerInput()
+
+
+/* FSimonGameState UAwaitingPlayerInput Class*/
+
+FAwaitingPlayerInput::~FAwaitingPlayerInput()
 {
 	OnStateExit();
 }
 
-void UAwaitingPlayerInput::OnStateEnter()
+void FAwaitingPlayerInput::OnStateEnter()
 {
 	SimonGameController->SetAllOrbsPlayerActivatable(true);
 }
 
-void UAwaitingPlayerInput::OnStateExit()
+void FAwaitingPlayerInput::OnStateExit()
 {
 	SimonGameController->SetAllOrbsPlayerActivatable(false);
 }
 
-void UAwaitingPlayerInput::OnPlayerInput(int32 OrbNumber)
+void FAwaitingPlayerInput::OnPlayerInput(int32 OrbNumber)
 {
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("Notification: SimonOrb number %d was activated."), OrbNumber));
 	CurrentOrbSequenceInput.Add(OrbNumber);
 
 	ESimonRoundStatus CurrentRoundStatus = CheckRoundStatus();
 
-	// TODO check if done
 	switch (CurrentRoundStatus)
 	{
 	case RoundLost:
@@ -437,7 +411,7 @@ void UAwaitingPlayerInput::OnPlayerInput(int32 OrbNumber)
 }
 
 
-ESimonRoundStatus UAwaitingPlayerInput::CheckRoundStatus()
+ESimonRoundStatus FAwaitingPlayerInput::CheckRoundStatus()
 {
 	if (!IsInputSequenceOkay())
 	{
@@ -451,7 +425,7 @@ ESimonRoundStatus UAwaitingPlayerInput::CheckRoundStatus()
 }
 
 
-bool UAwaitingPlayerInput::IsInputSequenceOkay()
+bool FAwaitingPlayerInput::IsInputSequenceOkay()
 {
 	auto CurrentOrbSequenceTarget = SimonGameController->GetCurrentOrbSequenceTarget();
 	for (int32 i = 0; i < CurrentOrbSequenceInput.Num(); ++i) {
@@ -463,18 +437,24 @@ bool UAwaitingPlayerInput::IsInputSequenceOkay()
 	return true;
 }
 
-void UGameLost::OnStateEnter()
+
+/* FSimonGameState UGameLost Class*/
+
+void FGameLost::OnStateEnter()
 {
 	SimonGameController->ResetGame();
 	SimonGameController->SetSimonGameState(ESimonGameState::PreparingRound);
 }
 
-void UWaiting::OnStateEnter()
+
+/* FSimonGameState UWaiting Class*/
+
+void FWaiting::OnStateEnter()
 {
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("Waiting OnStateEnter.")));
 }
 
-void UWaiting::OnStateExit()
+void FWaiting::OnStateExit()
 {
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("Waiting OnStateExit.")));
 }
