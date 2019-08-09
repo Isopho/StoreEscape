@@ -23,11 +23,13 @@ enum ESimonRoundStatus
 UENUM()
 enum ESimonGameState
 {
+	NoState    					UMETA(DisplayName = "NoState"),
+	Waiting						UMETA(DisplayName = "Waiting"),
+	PreparingRound				UMETA(DisplayName = "PreparingRound"),
+	DisplayingTargetSequence	UMETA(DisplayName = "ContinueRDisplayingTargetSequenceound"),
+	AwaitingPlayerInput			UMETA(DisplayName = "AwaitingPlayerInput"),
 	GameLost    				UMETA(DisplayName = "GameLost"),
 	GameWon						UMETA(DisplayName = "GameWon"),
-	AwaitingPlayerInput			UMETA(DisplayName = "AwaitingPlayerInput"),
-	DisplayingTargetSequence	UMETA(DisplayName = "ContinueRDisplayingTargetSequenceound"),
-	PreparingRound				UMETA(DisplayName = "PreparingRound"),
 };
 
 
@@ -44,30 +46,40 @@ public:
 
 	virtual void OnPlayerInput(int32 OrbNumber);
 
+	virtual ESimonGameState GetESimonGameState() const;
+
 protected:
 
-		TWeakObjectPtr<USimonGameController> SimonGameController {};
+	TWeakObjectPtr<USimonGameController> SimonGameController {};
 
+	ESimonGameState SimonGameState;
 
 };
 
 class  UPreparingRound : public USimonGameState 
 {
 public:
-	UPreparingRound(const USimonGameController* SimonGameController) : USimonGameState(SimonGameController) {};
+	UPreparingRound(const USimonGameController* SimonGameController) : USimonGameState(SimonGameController) { SimonGameState = ESimonGameState::PreparingRound; };
+
+	virtual ESimonGameState GetESimonGameState() const override;
+
 	virtual void OnStateEnter() override;
 
 protected:	
+
+	int32 GetRandomOrbNumber();
+
+	TArray<int32> GenerateRandomOrbSequence(int32 SequenceLength);
 	
-		TArray<int32> GenerateRandomOrbSequence(int32 SequenceLength);
-	
-		void InitNextRound();
+	void InitNextRound();
 };
 
 class  UDisplayingTargetSequence : public USimonGameState 
 {	
 public:
-	UDisplayingTargetSequence(const USimonGameController* SimonGameController) : USimonGameState(SimonGameController) {};
+	UDisplayingTargetSequence(const USimonGameController* SimonGameController) : USimonGameState(SimonGameController) { SimonGameState = ESimonGameState::DisplayingTargetSequence; };
+	
+	virtual ESimonGameState GetESimonGameState() const override;
 
 	virtual void OnStateEnter() override;
 
@@ -80,7 +92,7 @@ protected:
 class  UAwaitingPlayerInput : public USimonGameState 
 {	
 public:
-	UAwaitingPlayerInput(const USimonGameController* SimonGameController) : USimonGameState(SimonGameController) {};
+	UAwaitingPlayerInput(const USimonGameController* SimonGameController) : USimonGameState(SimonGameController) { SimonGameState = ESimonGameState::AwaitingPlayerInput; };
 
 	virtual ~UAwaitingPlayerInput();
 
@@ -101,7 +113,7 @@ protected:
 class  UGameWon : public USimonGameState 
 {	
 public:
-	UGameWon(const USimonGameController* SimonGameController) : USimonGameState(SimonGameController) {};
+	UGameWon(const USimonGameController* SimonGameController) : USimonGameState(SimonGameController) { SimonGameState = ESimonGameState::GameWon; };
 
 protected:
 
@@ -110,13 +122,27 @@ protected:
 class UGameLost : public USimonGameState 
 {
 public:
-	UGameLost(const USimonGameController* SimonGameController) : USimonGameState(SimonGameController) {};
+	UGameLost(const USimonGameController* SimonGameController) : USimonGameState(SimonGameController) { SimonGameState = ESimonGameState::GameLost; };
 
 	virtual void OnStateEnter() override;
 protected:
 
 
 };
+
+class UWaiting : public USimonGameState
+{
+public:
+	UWaiting(const USimonGameController* SimonGameController) : USimonGameState(SimonGameController) { SimonGameState = ESimonGameState::Waiting; };
+
+	virtual void OnStateEnter() override;
+
+	virtual void OnStateExit() override;
+protected:
+
+
+};
+
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BULDINGESCAPE_API USimonGameController : public UActorComponent
@@ -138,6 +164,9 @@ public:
 	   
 	UFUNCTION()
 		void SetSimonGameState(ESimonGameState NewState);
+
+	UFUNCTION()
+		void SetSimonGameStateAfterDelay(ESimonGameState NewState, float Delay);
 
 	UFUNCTION()
 		void ResetGame();
