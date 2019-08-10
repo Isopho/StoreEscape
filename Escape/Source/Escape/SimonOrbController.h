@@ -19,7 +19,10 @@
 #include "SimonOrbController.generated.h"
 
 /// Class for blueprint to activate the orbs flare, with the duration in seconds.
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSimonOrbLightStart, float, Duration);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSimonOrbFlare, float, Duration, float, LightIntensity);
+
+/// Class for blueprint to activate the orbs flare, with the duration in seconds.
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSimonOrbGlow, float, Duration);
 
 /// Class for blueprint to activate the orbs flare, with the duration in seconds.
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSimonOrbBasicEvent);
@@ -38,13 +41,15 @@ public:
 
 	void FlareSimonOrb() const;
 
+	void FlareSimonOrb(float Duration, float LightIntensity);
+
 	void SetSimonOrbGlow(bool Glowing);
 
 	UPROPERTY(BlueprintAssignable)
-		FOnSimonOrbLightStart FlareOrbRequest;
+		FOnSimonOrbFlare FlareOrbRequest;
 
 	UPROPERTY(BlueprintAssignable)
-		FOnSimonOrbLightStart StartOrbGlowRequest;
+		FOnSimonOrbGlow StartOrbGlowRequest;
 
 	UPROPERTY(BlueprintAssignable)
 		FOnSimonOrbBasicEvent StopOrbGlowRequest;
@@ -54,6 +59,10 @@ public:
 	void SetFlareTime(float FlareTime);
 
 	float GetFlareTime() const;
+
+	void SetFlareLightIntensity(float FlareLightIntensity);
+
+	float GetFlareLightIntensity() const;
 	
 	UFUNCTION()
 		void SetPlayerActivatable(bool PlayerActivatable);
@@ -70,8 +79,10 @@ protected:
 private:	
 	float FlareTime = 1.0f;
 
+	float FlareLightIntensity = 100.0f;
+
 	UPROPERTY(EditAnywhere)
-	float GlowLoopDuration = 10.0f;
+		float GlowLoopDuration = 10.0f;
 
 	bool bPlayerActivatable = false;		
 

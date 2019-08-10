@@ -39,6 +39,16 @@ float USimonOrbController::GetFlareTime() const
 	return FlareTime;
 }
 
+void USimonOrbController::SetFlareLightIntensity(float FlareLightIntensity)
+{
+	this->FlareLightIntensity = FlareLightIntensity;
+}
+
+float USimonOrbController::GetFlareLightIntensity() const
+{
+	return FlareLightIntensity;
+}
+
 void USimonOrbController::SetPlayerActivatable(bool PlayerActivatable)
 {
 	this->bPlayerActivatable = PlayerActivatable;
@@ -73,8 +83,15 @@ void USimonOrbController::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 void USimonOrbController::FlareSimonOrb() const
 {
-	FlareOrbRequest.Broadcast(FlareTime);
+	FlareOrbRequest.Broadcast(FlareTime,FlareLightIntensity);
 
+}
+
+void USimonOrbController::FlareSimonOrb(float Duration, float LightIntensity)
+{
+	this->FlareTime = Duration;
+	this->FlareLightIntensity = LightIntensity;
+	FlareSimonOrb();
 }
 
 void USimonOrbController::SetSimonOrbGlow(bool Glowing)
