@@ -73,6 +73,18 @@ void USimonGameController::SetCurrentOrbFlareDuration(float NewFlareDuration)
 	}
 }
 
+void USimonGameController::SetGlowOnAllOrbs(bool Glowing)
+{
+	for (AActor* SimonOrb : SimonOrbs)
+	{
+		USimonOrbController* SimonOrbController = SimonOrb->FindComponentByClass<USimonOrbController>();
+		if (SimonOrbController)
+		{
+			SimonOrbController->SetSimonOrbGlow(Glowing);
+		}
+	}
+}
+
 // Called when the game starts
 void USimonGameController::BeginPlay()
 {
@@ -435,6 +447,13 @@ bool FAwaitingPlayerInput::IsInputSequenceOkay()
 		}
 	}
 	return true;
+}
+
+/* FSimonGameState FGameWon Class*/
+
+void FGameWon::OnStateEnter()
+{
+	SimonGameController->SetGlowOnAllOrbs(true);
 }
 
 

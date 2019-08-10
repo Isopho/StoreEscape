@@ -19,7 +19,10 @@
 #include "SimonOrbController.generated.h"
 
 /// Class for blueprint to activate the orbs flare, with the duration in seconds.
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSimonOrbFlare, float, FlareDuration);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSimonOrbLightStart, float, Duration);
+
+/// Class for blueprint to activate the orbs flare, with the duration in seconds.
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSimonOrbBasicEvent);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ESCAPE_API USimonOrbController : public USwitch
@@ -35,8 +38,16 @@ public:
 
 	void FlareSimonOrb() const;
 
+	void SetSimonOrbGlow(bool Glowing);
+
 	UPROPERTY(BlueprintAssignable)
-		FOnSimonOrbFlare FlareOrbRequest;
+		FOnSimonOrbLightStart FlareOrbRequest;
+
+	UPROPERTY(BlueprintAssignable)
+		FOnSimonOrbLightStart StartOrbGlowRequest;
+
+	UPROPERTY(BlueprintAssignable)
+		FOnSimonOrbBasicEvent StopOrbGlowRequest;
 
 	virtual void DoActivationAction() override;
 
@@ -59,7 +70,14 @@ protected:
 private:	
 	float FlareTime = 1.0f;
 
-	bool PlayerActivatable = false;		
+	UPROPERTY(EditAnywhere)
+	float GlowLoopDuration = 10.0f;
 
-	bool ActivationBlocked = false;
+	bool bPlayerActivatable = false;		
+
+	bool bActivationBlocked = false;
+
+	bool bIsGlowing = false;
+
+
 };

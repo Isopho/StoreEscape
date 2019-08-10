@@ -115,6 +115,8 @@ class  FGameWon : public FSimonGameState
 public:
 	FGameWon(const USimonGameController* SimonGameController) : FSimonGameState(SimonGameController) { SimonGameState = ESimonGameState::GameWon; };
 
+	virtual void OnStateEnter() override;
+
 protected:
 
 };
@@ -125,6 +127,7 @@ public:
 	FGameLost(const USimonGameController* SimonGameController) : FSimonGameState(SimonGameController) { SimonGameState = ESimonGameState::GameLost; };
 
 	virtual void OnStateEnter() override;
+
 protected:
 
 
@@ -203,12 +206,16 @@ public:
 
 	UFUNCTION()
 		void SetCurrentOrbFlareDuration(float NewFlareDuration);
+	
+	UFUNCTION()
+		void SetGlowOnAllOrbs(bool Glowing);
 
 	UFUNCTION()
 		void FlareOrb(int32 OrbNumber);
 
 	UFUNCTION()
 		void SetAllOrbsPlayerActivatable(bool Activatable);
+
 protected:
 
 	virtual void BeginPlay() override;
@@ -217,11 +224,19 @@ private:
 
 	FSimonGameState* CurrentSimonGameState;
 
+	bool bGameIsWon = false;
+
+	float CurrentOrbFlareDuration{ 2.0f };
+
+	uint32 CurrentGameRound{ 0 };
+
+	TArray<int32> CurrentOrbSequenceTarget{};
+
 	UPROPERTY(EditAnywhere)
 		TArray<AActor*> SimonOrbs {};
 
 	UPROPERTY(EditAnywhere)
-		uint32 GameRoundsToWin {7};
+		uint32 GameRoundsToWin {1};
 
 	UPROPERTY(EditAnywhere)
 		float BaseOrbFlareDuration {1.5f};
@@ -233,11 +248,4 @@ private:
 		// Number of additional orb steps increases every X levels
 		float DifficultyBumpLevels{ 5.0f };
 		
-	uint32 CurrentGameRound{0};
-
-	TArray<int32> CurrentOrbSequenceTarget{};
-
-	bool bGameIsWon = false;	
-
-	float CurrentOrbFlareDuration{ 2.0f };
 };

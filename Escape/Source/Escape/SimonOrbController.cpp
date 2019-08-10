@@ -16,8 +16,8 @@ USimonOrbController::USimonOrbController()
 
 void USimonOrbController::DoActivationAction()
 {
-	if (PlayerActivatable && !ActivationBlocked) {
-		ActivationBlocked = true;
+	if (bPlayerActivatable && !bActivationBlocked) {
+		bActivationBlocked = true;
 		FlareSimonOrb();
 
 		OnSwitchActivation.Broadcast(GetOwner());
@@ -41,17 +41,17 @@ float USimonOrbController::GetFlareTime() const
 
 void USimonOrbController::SetPlayerActivatable(bool PlayerActivatable)
 {
-	this->PlayerActivatable = PlayerActivatable;
+	this->bPlayerActivatable = PlayerActivatable;
 }
 
 void USimonOrbController::SetActivationBlocked(bool ActivationBlocked)
 {
-	this->ActivationBlocked = ActivationBlocked;
+	this->bActivationBlocked = ActivationBlocked;
 }
 
 bool USimonOrbController::IsPlayerActivatable() const
 {
-	return PlayerActivatable;
+	return bPlayerActivatable;
 }
 
 // Called when the game starts
@@ -75,5 +75,18 @@ void USimonOrbController::FlareSimonOrb() const
 {
 	FlareOrbRequest.Broadcast(FlareTime);
 
+}
+
+void USimonOrbController::SetSimonOrbGlow(bool Glowing)
+{
+	bIsGlowing = Glowing;
+
+	if (Glowing) {
+		StartOrbGlowRequest.Broadcast(GlowLoopDuration);
+	}
+	else
+	{
+		StopOrbGlowRequest.Broadcast();
+	}
 }
 
