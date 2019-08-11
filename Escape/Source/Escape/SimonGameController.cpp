@@ -88,6 +88,11 @@ float USimonGameController::GetBaseOrbFlareLightIntensity() const
 	return BaseOrbFlareLightIntensity;
 }
 
+float USimonGameController::GetGameWonOrbGlowDelay() const
+{
+	return GameWonOrbGlowDelay;
+}
+
 float USimonGameController::GetGameLostOrbFlareLightIntensity() const
 {
 	return GameLostOrbFlareLightIntensity;
@@ -115,13 +120,18 @@ void USimonGameController::SetCurrentOrbFlareLightIntensity(float NewFlareLightI
 
 void USimonGameController::SetGlowOnAllOrbs(bool Glowing)
 {
-	for (AActor* SimonOrb : SimonOrbs)
+	for (int32 i = 0; i < SimonOrbs.Num(); ++i)
 	{
-		USimonOrbController* SimonOrbController = SimonOrb->FindComponentByClass<USimonOrbController>();
-		if (SimonOrbController)
-		{
-			SimonOrbController->SetSimonOrbGlow(Glowing);
-		}
+		SetGlowOnOrb(i, Glowing);
+	}
+}
+
+void USimonGameController::SetGlowOnOrb(int32 OrbNumber, bool Glowing)
+{
+	USimonOrbController* SimonOrbController = SimonOrbs[OrbNumber]->FindComponentByClass<USimonOrbController>();
+	if (SimonOrbController)
+	{
+		SimonOrbController->SetSimonOrbGlow(Glowing);
 	}
 }
 
@@ -523,7 +533,20 @@ bool FAwaitingPlayerInput::IsInputSequenceOkay()
 
 void FGameWon::OnStateEnter()
 {
-	SimonGameController->SetGlowOnAllOrbs(true);
+	DisplayWinAnimation();
+}
+
+void FGameWon::DisplayWinAnimation()
+{
+	SimonGameController->SetGlowOnOrb(0, true);
+
+	for (int32 i = 1; i < SimonGameController->GetNumberOfSimonOrbs(); ++i)
+	{
+		FTimerHandle TimerHandle{};
+		FTimerDelegate TimerDel{};
+		TimerDel.BindUFunction(SimonGameController.Get(), FName("SetGlowOnOrb"), i, true);
+		SimonGameController->GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, i * SimonGameController->GetGameWonOrbGlowDelay(), false);
+	}
 }
 
 

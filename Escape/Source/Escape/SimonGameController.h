@@ -119,6 +119,8 @@ public:
 
 protected:
 
+	void DisplayWinAnimation();
+
 };
 
 class FGameLost : public FSimonGameState 
@@ -217,7 +219,10 @@ public:
 		void SetCurrentOrbFlareDuration(float NewFlareDuration);
 
 	UFUNCTION()
-		float GetBaseOrbFlareLightIntensity() const;
+		float GetBaseOrbFlareLightIntensity() const; 
+
+	UFUNCTION()
+		float GetGameWonOrbGlowDelay() const;
 
 	UFUNCTION()
 		float GetGameLostOrbFlareLightIntensity() const;
@@ -230,6 +235,9 @@ public:
 	
 	UFUNCTION()
 		void SetGlowOnAllOrbs(bool Glowing);
+
+	UFUNCTION()
+		void SetGlowOnOrb(int32 OrbNumber, bool Glowing);
 
 	UFUNCTION()
 		void FlareOrb(int32 OrbNumber);
@@ -256,7 +264,7 @@ private:
 		TArray<AActor*> SimonOrbs {};
 
 	UPROPERTY(EditAnywhere)
-		uint32 GameRoundsToWin { 3 };
+		uint32 GameRoundsToWin { 7 };
 
 	UPROPERTY(EditAnywhere)
 		float BaseOrbFlareDuration { 1.5f};
@@ -272,6 +280,9 @@ private:
 
 	UPROPERTY(EditAnywhere)
 		float OrbGlowLightIntensity{ 15.0f };
+
+	UPROPERTY(EditAnywhere)
+		float GameWonOrbGlowDelay{ 0.3f };
 
 	UPROPERTY(EditAnywhere)
 		float GameSpeedIncreaseRate{ 0.334f };
