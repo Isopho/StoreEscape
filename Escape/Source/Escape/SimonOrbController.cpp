@@ -81,17 +81,20 @@ void USimonOrbController::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	// ...
 }
 
-void USimonOrbController::FlareSimonOrb() const
+void USimonOrbController::FlareSimonOrb(float VolumeMultiplyer) const
 {
-	FlareOrbRequest.Broadcast(FlareTime,FlareLightIntensity);
+	if (VolumeMultiplyer < 0.01f) {
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("Flaring Orb at (%f)"), VolumeMultiplyer));
+	}
+	FlareOrbRequest.Broadcast(FlareTime,FlareLightIntensity, VolumeMultiplyer);
 
 }
 
-void USimonOrbController::FlareSimonOrb(float Duration, float LightIntensity)
+void USimonOrbController::FlareSimonOrb(float Duration, float LightIntensity, float VolumeMultiplyer)
 {
 	this->FlareTime = Duration;
 	this->FlareLightIntensity = LightIntensity;
-	FlareSimonOrb();
+	FlareSimonOrb(VolumeMultiplyer);
 }
 
 void USimonOrbController::SetSimonOrbGlow(bool Glowing)

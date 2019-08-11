@@ -19,7 +19,7 @@
 #include "SimonOrbController.generated.h"
 
 /// Class for blueprint to activate the orbs flare, with the duration in seconds.
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSimonOrbFlare, float, Duration, float, LightIntensity);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnSimonOrbFlare, float, Duration, float, LightIntensity, float, VolumeMultiplyer);
 
 /// Class for blueprint to activate the orbs flare, with the duration in seconds.
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSimonOrbGlow, float, Duration);
@@ -39,9 +39,9 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void FlareSimonOrb() const;
+	void FlareSimonOrb(float VolumeMultiplyer = 1.0f) const;
 
-	void FlareSimonOrb(float Duration, float LightIntensity);
+	void FlareSimonOrb(float Duration, float LightIntensity, float VolumeMultiplyer = 1.0f);
 
 	void SetSimonOrbGlow(bool Glowing);
 

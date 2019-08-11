@@ -24,6 +24,11 @@ uint32 USimonGameController::GetGameRoundsToWin() const
 	return GameRoundsToWin;
 }
 
+float USimonGameController::GetRoundTimeLimit() const
+{
+	return RoundTimeLimit;
+}
+
 void USimonGameController::IncrementCurrentGameRound()
 {
 	++CurrentGameRound;
@@ -173,41 +178,44 @@ int32 USimonGameController::GetNumberOfSimonOrbs() const
 }
 
 
-void USimonGameController::FlareOrb(int32 OrbNumber)
-{	
+void USimonGameController::FlareOrb(int32 OrbNumber, float VolumeMultiplyer)
+{
+	if (VolumeMultiplyer < 0.01f) {
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("Flaring Orb at (%f)"), VolumeMultiplyer));
+	}
 	USimonOrbController* SimonOrbController = SimonOrbs[OrbNumber]->FindComponentByClass<USimonOrbController>();
 	if (SimonOrbController)
 	{
-		SimonOrbController->FlareSimonOrb(CurrentOrbFlareDuration, CurrentOrbFlareLightIntensity);
+		SimonOrbController->FlareSimonOrb(CurrentOrbFlareDuration, CurrentOrbFlareLightIntensity, VolumeMultiplyer);
 	}
 }
 
-void USimonGameController::FlareAllOrbs(float Duration)
+void USimonGameController::FlareAllOrbs(float Duration, float VolumeMultiplyer)
 {
 	SetCurrentOrbFlareDuration(Duration);
 	for (int32 i = 0; i < SimonOrbs.Num() ; ++i)
 	{
-		FlareOrb(i);
+		FlareOrb(i, VolumeMultiplyer);
 	}
 }
 
-void USimonGameController::FlareOrbNTimes(int32 OrbNumber, int32 N)
+void USimonGameController::FlareOrbNTimes(int32 OrbNumber, int32 N, float VolumeMultiplyer)
 {
-	FlareOrb(OrbNumber);
+	FlareOrb(OrbNumber, VolumeMultiplyer);
 	for (int32 i = 1; i < N; ++i) {
 		FTimerHandle TimerHandle{};
 		FTimerDelegate TimerDel{};
-		TimerDel.BindUFunction(this, FName("FlareOrb"), OrbNumber);
+		TimerDel.BindUFunction(this, FName("FlareOrb"), OrbNumber, VolumeMultiplyer);
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, i* CurrentOrbFlareDuration, false);
 	}
 }
 
-void USimonGameController::FlareAllOrbsNTimes(float Duration, int32 N)
+void USimonGameController::FlareAllOrbsNTimes(float Duration, int32 N, float VolumeMultiplyer)
 {
 	SetCurrentOrbFlareDuration(Duration);
 	for (int32 i = 0; i < SimonOrbs.Num(); ++i)
 	{
-		FlareOrbNTimes(i,N);
+		FlareOrbNTimes(i, N, VolumeMultiplyer);
 	}
 }
 
@@ -289,13 +297,13 @@ void USimonGameController::SetSimonGameState(ESimonGameState NewState)
 }
 
 // Switch to the Target State after a delay. (Delay <= 0.0f) equals no delay.
-void USimonGameController::SetSimonGameStateAfterDelay(ESimonGameState NewState, float Delay)
+FTimerHandle USimonGameController::SetSimonGameStateAfterDelay(ESimonGameState NewState, float Delay)
 {
-	
+	FTimerHandle TimerHandle{};
+
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("State Switch in %f"), Delay));
 	if (Delay > 0.0f) 
 	{
-		FTimerHandle TimerHandle{};
 		FTimerDelegate TimerDel{};
 		TimerDel.BindUFunction(this, FName("SetSimonGameState"), NewState);
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, Delay, false);
@@ -304,6 +312,7 @@ void USimonGameController::SetSimonGameStateAfterDelay(ESimonGameState NewState,
 	{
 		SetSimonGameState(NewState);
 	}
+	return TimerHandle;
 
 }
 
@@ -408,7 +417,7 @@ void FPreparingRound::InitNextRound()
 
 
 
-/* FSimonGameState UDisplayingTargetSequence Class*/
+/* FSimonGameState FDisplayingTargetSequence Class*/
 
 ESimonGameState FDisplayingTargetSequence::GetESimonGameState() const
 {
@@ -435,14 +444,14 @@ void FDisplayingTargetSequence::PlayOrbSequence(TArray<int32> OrbSequence)
 	{
 		FTimerHandle TimerHandle{};
 		FTimerDelegate TimerDel{};
-		TimerDel.BindUFunction(SimonGameController.Get(), FName("FlareOrb"), OrbSequence[i]);
+		TimerDel.BindUFunction(SimonGameController.Get(), FName("FlareOrb"), OrbSequence[i], 1.0f);
 		SimonGameController->GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDel, i * SimonGameController->GetCurrentOrbFlareDuration() * SimonGameController->GetFlareWaitMultiplyer(), false);
 	}
 }
 
 
 
-/* FSimonGameState UAwaitingPlayerInput Class*/
+/* FSimonGameState FAwaitingPlayerInput Class*/
 
 FAwaitingPlayerInput::~FAwaitingPlayerInput()
 {
@@ -452,11 +461,16 @@ FAwaitingPlayerInput::~FAwaitingPlayerInput()
 void FAwaitingPlayerInput::OnStateEnter()
 {
 	SimonGameController->SetAllOrbsPlayerActivatable(true);
+	RoundTimerHandle = SimonGameController->SetSimonGameStateAfterDelay(ESimonGameState::GameLost, SimonGameController->GetRoundTimeLimit());
 }
 
 void FAwaitingPlayerInput::OnStateExit()
 {
 	SimonGameController->SetAllOrbsPlayerActivatable(false);
+	if (RoundTimerHandle.IsValid())
+	{
+		SimonGameController->GetWorld()->GetTimerManager().ClearTimer(RoundTimerHandle);
+	}
 }
 
 void FAwaitingPlayerInput::OnPlayerInput(int32 OrbNumber)
@@ -562,7 +576,7 @@ void FGameLost::OnStateEnter()
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("FGameLost OnStateEnter.")));
 	int32 Flares = 2;
 	SimonGameController->SetCurrentOrbFlareLightIntensity(SimonGameController->GetGameLostOrbFlareLightIntensity());
-	SimonGameController->FlareAllOrbsNTimes(SimonGameController->GetGameLostFlareDuration(), Flares);
+	SimonGameController->FlareAllOrbsNTimes(SimonGameController->GetGameLostFlareDuration(), Flares, 0.05f);
 	SimonGameController->ResetGame();
 	SimonGameController->SetSimonGameStateAfterDelay(ESimonGameState::PreparingRound, SimonGameController->GetGameLostFlareDuration() * SimonGameController->GetFlareWaitMultiplyer() * Flares);
 }

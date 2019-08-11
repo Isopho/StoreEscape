@@ -105,6 +105,8 @@ protected:
 
 	TArray<int32> CurrentOrbSequenceInput{};
 
+	FTimerHandle RoundTimerHandle;
+
 	ESimonRoundStatus CheckRoundStatus();
 
 	bool IsInputSequenceOkay();
@@ -173,8 +175,7 @@ public:
 	UFUNCTION()
 		void SetSimonGameState(ESimonGameState NewState);
 
-	UFUNCTION()
-		void SetSimonGameStateAfterDelay(ESimonGameState NewState, float Delay);
+	FTimerHandle SetSimonGameStateAfterDelay(ESimonGameState NewState, float Delay);
 
 	UFUNCTION()
 		void ResetGame();
@@ -187,6 +188,9 @@ public:
 
 	UFUNCTION()
 		uint32 GetGameRoundsToWin() const;
+
+	UFUNCTION()
+		float GetRoundTimeLimit() const;
 
 	UFUNCTION()
 		void IncrementCurrentGameRound();
@@ -240,16 +244,16 @@ public:
 		void SetGlowOnOrb(int32 OrbNumber, bool Glowing);
 
 	UFUNCTION()
-		void FlareOrb(int32 OrbNumber);
+		void FlareOrb(int32 OrbNumber, float VolumeMultiplyer = 1.0f);
 
 	UFUNCTION()
-		void FlareAllOrbs(float Duration);
+		void FlareAllOrbs(float Duration, float VolumeMultiplyer = 1.0f);
 
 	UFUNCTION()
-		void FlareOrbNTimes(int32 OrbNumber, int32 N);
+		void FlareOrbNTimes(int32 OrbNumber, int32 N, float VolumeMultiplyer = 1.0f);
 
 	UFUNCTION()
-		void FlareAllOrbsNTimes(float Duration, int32 N);
+		void FlareAllOrbsNTimes(float Duration, int32 N, float VolumeMultiplyer = 1.0f);
 
 	UFUNCTION()
 		void SetAllOrbsPlayerActivatable(bool Activatable);
@@ -265,6 +269,9 @@ private:
 
 	UPROPERTY(EditAnywhere)
 		uint32 GameRoundsToWin { 7 };
+
+	UPROPERTY(EditAnywhere)
+		float RoundTimeLimit{ 5.0f };
 
 	UPROPERTY(EditAnywhere)
 		float BaseOrbFlareDuration { 1.5f};
