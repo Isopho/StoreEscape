@@ -7,7 +7,7 @@
 #include "ActivationReceiver.h"
 #include "Switch.generated.h"
 
-/// Class for blueprint to activate the orbs flare, with the duration in seconds.
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSwitchActivation, AActor*, ActivatedSwtichActor);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )

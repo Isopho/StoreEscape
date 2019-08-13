@@ -180,9 +180,6 @@ int32 USimonGameController::GetNumberOfSimonOrbs() const
 
 void USimonGameController::FlareOrb(int32 OrbNumber, float VolumeMultiplyer)
 {
-	if (VolumeMultiplyer < 0.01f) {
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("Flaring Orb at (%f)"), VolumeMultiplyer));
-	}
 	USimonOrbController* SimonOrbController = SimonOrbs[OrbNumber]->FindComponentByClass<USimonOrbController>();
 	if (SimonOrbController)
 	{
