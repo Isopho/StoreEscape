@@ -83,9 +83,6 @@ void USimonOrbController::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 void USimonOrbController::FlareSimonOrb(float VolumeMultiplyer) const
 {
-	if (VolumeMultiplyer < 0.01f) {
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("Flaring Orb at (%f)"), VolumeMultiplyer));
-	}
 	FlareOrbRequest.Broadcast(FlareTime,FlareLightIntensity, VolumeMultiplyer);
 
 }

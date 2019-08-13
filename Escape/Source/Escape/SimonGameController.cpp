@@ -576,7 +576,7 @@ void FGameLost::OnStateEnter()
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("FGameLost OnStateEnter.")));
 	int32 Flares = 2;
 	SimonGameController->SetCurrentOrbFlareLightIntensity(SimonGameController->GetGameLostOrbFlareLightIntensity());
-	SimonGameController->FlareAllOrbsNTimes(SimonGameController->GetGameLostFlareDuration(), Flares, 0.05f);
+	SimonGameController->FlareAllOrbsNTimes(SimonGameController->GetGameLostFlareDuration(), Flares, 0.5f);
 	SimonGameController->ResetGame();
 	SimonGameController->SetSimonGameStateAfterDelay(ESimonGameState::PreparingRound, SimonGameController->GetGameLostFlareDuration() * SimonGameController->GetFlareWaitMultiplyer() * Flares);
 }
