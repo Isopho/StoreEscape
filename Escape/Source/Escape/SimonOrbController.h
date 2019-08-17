@@ -54,8 +54,6 @@ public:
 	UPROPERTY(BlueprintAssignable)
 		FOnSimonOrbBasicEvent StopOrbGlowRequest;
 
-	virtual void DoActivationAction() override;
-
 	void SetFlareTime(float FlareTime);
 
 	float GetFlareTime() const;
@@ -75,6 +73,8 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+	virtual void DoActivationAction() override;
 
 private:	
 	float FlareTime = 1.0f;
