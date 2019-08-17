@@ -19,8 +19,20 @@ void UTableGameController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-	
+	if (ActivationSwitch) {
+		USwitch* SwitchComponent = ActivationSwitch->FindComponentByClass<USwitch>();
+
+		if (SwitchComponent)
+		{
+			SwitchComponent->OnSwitchActivation.AddDynamic(this, &UTableGameController::OnNotificationOfSwitchActivation);
+		}
+	}
+}
+
+void UTableGameController::OnNotificationOfSwitchActivation(AActor* SwitchActor)
+{
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("OnNotificationOfSwitchActivation activated.")));
+	OnActivateGameRequest.Broadcast();
 }
 
 
@@ -32,3 +44,24 @@ void UTableGameController::TickComponent(float DeltaTime, ELevelTick TickType, F
 	// ...
 }
 
+UTableGameController::FTableGameState::FTableGameState(const UTableGameController* TableGameController) : TableGameState(ETableGameState::NoState)
+{
+	this->TableGameController = TableGameController;
+}
+
+UTableGameController::FTableGameState::~FTableGameState()
+{
+}
+
+void UTableGameController::FTableGameState::OnStateEnter()
+{
+}
+
+void UTableGameController::FTableGameState::OnStateExit()
+{
+}
+
+ETableGameState UTableGameController::FTableGameState::GetETableGameState() const
+{
+	return TableGameState;
+}
