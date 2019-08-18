@@ -20,12 +20,13 @@ void UMover::BeginPlay()
 	Super::BeginPlay();
 
 	StartLocation = GetOwner()->GetActorLocation();
+	StartRotation = GetOwner()->GetActorRotation();
+
 	if (MoveTarget) {
 		TargetLocation = MoveTarget->GetActorLocation();
+		TargetRotation = MoveTarget->GetActorRotation();
 	}
 
-	// ...
-	
 }
 
 float UMover::CalSmootherStep(float Time)
@@ -39,6 +40,18 @@ float UMover::CalSmootherStep(float Time)
 	}
 }
 
+void UMover::SwapStartAndTarget()
+{
+	FVector tmpL = StartLocation;
+	StartLocation = TargetLocation;
+	TargetLocation = tmpL;
+
+
+	FRotator tmpR = StartRotation;
+	StartRotation = TargetRotation;
+	TargetRotation = tmpR;
+}
+
 
 // Called every frame
 void UMover::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -47,22 +60,49 @@ void UMover::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponent
 
 	if (bMoving)
 	{
+		CurrentMoveTime += DeltaTime;
 		AActor* Owner = GetOwner();
-		FVector destinationLocation = FMath::VInterpTo(Owner->GetActorLocation(), TargetLocation, DeltaTime, 0.5f);
+		float alpha = FMath::Min(1.0f, CurrentMoveTime / MoveTime);
+
+		FVector destinationLocation = FMath::InterpEaseInOut(StartLocation, TargetLocation, alpha, 2.0f);
 		Owner->SetActorLocation(destinationLocation);
+
+		FRotator destinationRotation = FMath::InterpEaseInOut(StartRotation, TargetRotation, alpha, 2.0f);
+		Owner->SetActorRotation(destinationRotation);
+
+
+		if (CurrentMoveTime >= MoveTime)
+		{
+			CurrentMoveTime = 0.0f;
+			bMoving = false;
+			SwapStartAndTarget();
+		}
 	}
 }
 
 void UMover::Move()
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("Mover called")));
-	if (MoveTarget) 
+	if (!bMoving)
 	{
-		bMoving = true;
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("%s"), *FString::Printf(TEXT("Mover called with no move target!")));
-	}
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("Mover called")));
+		if (MoveTarget)
+		{
+			bMoving = true;
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("%s"), *FString::Printf(TEXT("Mover called with no move target!")));
+		}
+	}	
+}
+
+FVector UMover::GetStartLocation()
+{
+	return StartLocation;
+}
+
+FVector UMover::GetTargetLocation()
+{
+	return TargetLocation;
 }
 

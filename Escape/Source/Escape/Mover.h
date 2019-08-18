@@ -22,6 +22,10 @@ public:
 
 	void Move();
 
+	FVector GetStartLocation();
+
+	FVector GetTargetLocation();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		AActor* MoveTarget;
 protected:
@@ -33,14 +37,21 @@ private:
 
 	FVector StartLocation;
 	FVector TargetLocation;
+	
+	FRotator StartRotation;
+	FRotator TargetRotation;
 
 	bool bMoving{ false };
 
 	uint32 Times = 0;
 
+	float CurrentMoveTime{ 0.0f };
+
 	float CalSmootherStep(float Time);
 
 	UPROPERTY(EditAnywhere)
-		float MoveSpeedInterpolator{ 1.0f };
+		float MoveTime{ 2.0f };
+
+	void SwapStartAndTarget();
 
 };
