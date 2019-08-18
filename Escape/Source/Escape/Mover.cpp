@@ -20,7 +20,9 @@ void UMover::BeginPlay()
 	Super::BeginPlay();
 
 	StartLocation = GetOwner()->GetActorLocation();
-	TargetLocation = MoveTarget->GetActorLocation();
+	if (MoveTarget) {
+		TargetLocation = MoveTarget->GetActorLocation();
+	}
 
 	// ...
 	
@@ -54,6 +56,13 @@ void UMover::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponent
 void UMover::Move()
 {
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("Mover called")));
-	bMoving = true;
+	if (MoveTarget) 
+	{
+		bMoving = true;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s"), *FString::Printf(TEXT("Mover called with no move target!")));
+	}
 }
 

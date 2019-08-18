@@ -15,7 +15,7 @@
  * 
 */
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class ESCAPE_API UTableObstacleController : public USwitch
+class ESCAPE_API UTableObstacleController : public USwitch 
 {
 	GENERATED_BODY()
 

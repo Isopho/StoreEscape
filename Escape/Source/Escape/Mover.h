@@ -22,14 +22,14 @@ public:
 
 	void Move();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		AActor* MoveTarget;
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 	
 
 private:
-	UPROPERTY(EditAnywhere)
-		AActor* MoveTarget;
 
 	FVector StartLocation;
 	FVector TargetLocation;

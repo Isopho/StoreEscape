@@ -18,14 +18,16 @@ USwitch::USwitch()
 void USwitch::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
-	
 }
 
 void USwitch::DoActivationAction()
 {
 	OnSwitchActivation.Broadcast(GetOwner());
+}
+
+void USwitch::OnClick()
+{
+	DoActivationAction();
 }
 
 
