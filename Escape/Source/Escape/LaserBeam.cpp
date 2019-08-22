@@ -75,7 +75,10 @@ const FHitResult ULaserBeam::GetFirstActorInLaserBeamReach() const
 const ULaserBeam::FLine ULaserBeam::GetLaserLine() const
 {
 	// Location of the laser
-	FVector LaserLocation{ GetOwner()->GetActorLocation() };
+	if (!LaserparticleSystemComponent->IsValidLowLevel()) {
+		return FLine{ FVector{},FVector{} };
+	}
+	FVector LaserLocation{ LaserparticleSystemComponent->K2_GetComponentLocation() };
 	FRotator LaserRotation{ GetOwner()->GetActorRotation() };
 	FVector LaserDirection{};
 	FVector LaserMaxReachLocation{};

@@ -24,9 +24,7 @@ public:
 	   
 	UPROPERTY(BlueprintAssignable)
 		FOnSwitchActivation OnSwitchActivation;
-	   
-	UFUNCTION(BlueprintCallable)
-		virtual void OnClick();
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

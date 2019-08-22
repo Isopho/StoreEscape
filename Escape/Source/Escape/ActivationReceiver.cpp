@@ -32,6 +32,11 @@ void UActivationReceiver::TickComponent(float DeltaTime, ELevelTick TickType, FA
 	// ...
 }
 
+void UActivationReceiver::OnClick()
+{
+	DoActivationAction();
+}
+
 void UActivationReceiver::DoActivationAction()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Virtual Activatable Activated on %s"), *(GetOwner()->GetName()));

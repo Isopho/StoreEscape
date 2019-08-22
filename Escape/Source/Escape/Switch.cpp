@@ -25,11 +25,6 @@ void USwitch::DoActivationAction()
 	OnSwitchActivation.Broadcast(GetOwner());
 }
 
-void USwitch::OnClick()
-{
-	DoActivationAction();
-}
-
 
 // Called every frame
 void USwitch::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
