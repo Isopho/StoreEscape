@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "ActivationReceiver.h"
 #include "Engine/World.h"
+#include "LaserBeam.h"
+#include "LaserBeamReceiver.h"
 #include "TableGameLaserController.generated.h"
 
 /**
@@ -43,4 +45,20 @@ private:
 
 	UPROPERTY(EditAnywhere)
 		float TurnDegreesPerActivation{ 45.0f };
+
+	UPROPERTY(EditAnywhere)
+		bool bIsLaserBeamAlwaysOn{ false };
+
+	int32 LaserHitActivationCount{ 2 };
+	int32 HitByLaser{ 0 };
+
+	UPROPERTY(EditAnywhere)
+		float LaserActivationDelay{ 0.5f };
+
+
+	UPROPERTY()
+		ULaserBeam * LaserBeam{};
+
+	UFUNCTION()
+		void OnNotificationOfLaserBeamReceived(AActor* LaserBeamOriginActor);
 };

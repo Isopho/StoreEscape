@@ -1,0 +1,40 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "LaserBeamReceiver.h"
+
+// Sets default values for this component's properties
+ULaserBeamReceiver::ULaserBeamReceiver()
+{
+	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
+	// off to improve performance if you don't need them.
+	PrimaryComponentTick.bCanEverTick = true;
+
+	// ...
+}
+
+
+// Called when the game starts
+void ULaserBeamReceiver::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// ...
+	
+}
+
+void ULaserBeamReceiver::DoLaserBeamReceivedAction()
+{
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("%s got hit by a Laser!"), *GetOwner()->GetName()));
+	OnLaserBeamReceived.Broadcast(GetOwner());
+}
+
+
+// Called every frame
+void ULaserBeamReceiver::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+{
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+
+	// ...
+}
+

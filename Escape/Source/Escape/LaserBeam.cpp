@@ -21,6 +21,11 @@ void ULaserBeam::BeginPlay()
 
 	// ...
 	LaserparticleSystemComponent = GetOwner()->FindComponentByClass<UParticleSystemComponent>();
+
+	if (!LaserparticleSystemComponent->IsValidLowLevel())
+	{
+		UE_LOG(LogTemp, Error, TEXT("%s"), *FString::Printf(TEXT("ULaserBeam:  The UParticleSystemComponent is missing on %s!"), *GetOwner()->GetName()));
+	}
 }
 
 void ULaserBeam::UpdateLaserBeam()
@@ -28,27 +33,45 @@ void ULaserBeam::UpdateLaserBeam()
 	UE_LOG(LogTemp, Warning, TEXT("Firing Laser..."));
 
 	// The first object hit in the beam.
-	auto HitResult = GetFirstActorInLaserBeamReach();
-	
-
-	/// If we hit something then attach a physics handle
-	if (HitResult.GetActor())
+	if (bIsLaserBeamActivated)
 	{
-		/*
-		UActivationReceiver* ActivationReceiver = HitResult.GetActor()->FindComponentByClass<UActivationReceiver>();
-		UE_LOG(LogTemp, Warning, TEXT("Trying to use %s"), *(HitResult.GetActor()->GetName()));
+		auto HitResult = GetFirstActorInLaserBeamReach();
 
-		if (ActivationReceiver)
+
+		/// If we hit something then attach a physics handle
+		if (HitResult.GetActor())
 		{
-			ActivationReceiver->DoActivationAction();
-			UE_LOG(LogTemp, Warning, TEXT("Used %s"), *(HitResult.GetActor()->GetName()));
-		}*/
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("Laser hit %s after a distance of %f!"), *HitResult.GetActor()->GetName(), HitResult.Distance));
 
-		//FName ParamName = *FString::Printf(TEXT("BeamDistance"));
+			UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("Laser hit %s after a distance of %f!"), *HitResult.GetActor()->GetName(), HitResult.Distance));
 
-		if (LaserparticleSystemComponent->IsValidLowLevel()) {
-			LaserparticleSystemComponent->SetFloatParameter("BeamDistance", HitResult.Distance);
+			//FName ParamName = *FString::Printf(TEXT("BeamDistance"));
+
+			if (LaserparticleSystemComponent->IsValidLowLevel())
+			{
+				LaserparticleSystemComponent->SetFloatParameter("BeamDistance", HitResult.Distance);
+			}
+
+			ULaserBeamReceiver* LaserBeamReceiver = HitResult.GetActor()->FindComponentByClass<ULaserBeamReceiver>();
+			if (LaserBeamReceiver)
+			{
+				LaserBeamReceiver->DoLaserBeamReceivedAction();
+				UE_LOG(LogTemp, Warning, TEXT("Laser activated %s"), *(HitResult.GetActor()->GetName()));
+			}
+
+		}
+		else
+		{
+			if (LaserparticleSystemComponent->IsValidLowLevel())
+			{
+				LaserparticleSystemComponent->SetFloatParameter("BeamDistance", MaximumLaserReach);
+			}
+		}
+	}
+	else
+	{
+		if (LaserparticleSystemComponent->IsValidLowLevel())
+		{
+			LaserparticleSystemComponent->SetFloatParameter("BeamDistance", 0.0f);
 		}
 	}
 }
@@ -85,6 +108,7 @@ const ULaserBeam::FLine ULaserBeam::GetLaserLine() const
 
 	LaserDirection = LaserRotation.Vector();
 	LaserMaxReachLocation = LaserLocation + (LaserDirection * MaximumLaserReach);
+	
 
 	FLine LaserLine{ LaserLocation, LaserMaxReachLocation };
 
@@ -99,11 +123,17 @@ void ULaserBeam::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompo
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
-	count++;
-	if (count > 100)
-	{
-		count = 0;
-		UpdateLaserBeam();
-	}
+	UpdateLaserBeam();
+	
+}
+
+void ULaserBeam::SetbIsLaserBeamActivated(bool bActivated)
+{
+	bIsLaserBeamActivated = bActivated;
+}
+
+bool ULaserBeam::GetbIsLaserBeamActivated()
+{
+	return bIsLaserBeamActivated;
 }
 

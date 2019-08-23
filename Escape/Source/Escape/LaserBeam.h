@@ -6,6 +6,7 @@
 #include "Components/ActorComponent.h"
 #include "Engine/World.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "LaserBeamReceiver.h"
 #include "LaserBeam.generated.h"
 
 
@@ -20,6 +21,10 @@ public:
 
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	void SetbIsLaserBeamActivated(bool bActivated);
+
+	bool GetbIsLaserBeamActivated();
 
 protected:
 	// Called when the game starts
@@ -39,10 +44,11 @@ protected:
 private:
 
 	UPROPERTY(EditAnywhere)
-		//How far the player can reach.
+		//How far the Laser can reach.
 		float MaximumLaserReach = 10000.0f;
-
-	UParticleSystemComponent * LaserparticleSystemComponent{};
+	   	 
+	UPROPERTY()
+		UParticleSystemComponent * LaserparticleSystemComponent{};
 
 	void UpdateLaserBeam();
 
@@ -53,5 +59,7 @@ private:
 	const FLine GetLaserLine() const;
 		
 	int32 count{ 0 };
+
+	bool bIsLaserBeamActivated{ true };
 
 };
