@@ -30,7 +30,6 @@ void ULaserBeam::BeginPlay()
 
 void ULaserBeam::UpdateLaserBeam()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Firing Laser..."));
 
 	// The first object hit in the beam.
 	if (bIsLaserBeamActivated)
@@ -41,9 +40,6 @@ void ULaserBeam::UpdateLaserBeam()
 		/// If we hit something then attach a physics handle
 		if (HitResult.GetActor())
 		{
-
-			UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("Laser hit %s after a distance of %f!"), *HitResult.GetActor()->GetName(), HitResult.Distance));
-
 			//FName ParamName = *FString::Printf(TEXT("BeamDistance"));
 
 			if (LaserparticleSystemComponent->IsValidLowLevel())
@@ -55,7 +51,6 @@ void ULaserBeam::UpdateLaserBeam()
 			if (LaserBeamReceiver)
 			{
 				LaserBeamReceiver->DoLaserBeamReceivedAction();
-				UE_LOG(LogTemp, Warning, TEXT("Laser activated %s"), *(HitResult.GetActor()->GetName()));
 			}
 
 		}
@@ -102,7 +97,7 @@ const ULaserBeam::FLine ULaserBeam::GetLaserLine() const
 		return FLine{ FVector{},FVector{} };
 	}
 	FVector LaserLocation{ LaserparticleSystemComponent->K2_GetComponentLocation() };
-	FRotator LaserRotation{ GetOwner()->GetActorRotation() };
+	FRotator LaserRotation{ LaserparticleSystemComponent->K2_GetComponentRotation() };
 	FVector LaserDirection{};
 	FVector LaserMaxReachLocation{};
 

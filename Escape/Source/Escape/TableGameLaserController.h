@@ -41,6 +41,11 @@ private:
 	float CurrentMoveTime{ 0.0f };
 
 	UPROPERTY(EditAnywhere)
+		float ActivationDelay{ 0.5f };
+
+	float CurrentActivationDuration{ 0.0f };
+
+	UPROPERTY(EditAnywhere)
 		float MoveTime{ 0.5f };
 
 	UPROPERTY(EditAnywhere)

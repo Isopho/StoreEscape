@@ -27,17 +27,18 @@ void UTableGameLaserController::TickComponent(float DeltaTime, ELevelTick TickTy
 
 	if (!bIsLaserBeamAlwaysOn)
 	{
-		if (HitByLaser == LaserHitActivationCount)
+		if (HitByLaser == LaserHitActivationCount && CurrentActivationDuration < ActivationDelay)
+		{
+			CurrentActivationDuration += DeltaTime;
+		}
+		else if (HitByLaser > 0 && CurrentActivationDuration >= ActivationDelay )
 		{
 			LaserBeam->SetbIsLaserBeamActivated(true);
 			--HitByLaser;
 		}
-		else if (LaserBeam->GetbIsLaserBeamActivated() && HitByLaser > 0)
-		{
-			--HitByLaser;
-		}
 		else
 		{
+			CurrentActivationDuration = 0.0f;
 			LaserBeam->SetbIsLaserBeamActivated(false);
 		}
 	}
@@ -92,7 +93,6 @@ void UTableGameLaserController::BeginPlay()
 
 void UTableGameLaserController::OnNotificationOfLaserBeamReceived(AActor* LaserBeamOriginActor)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("%s got hit by Laser from %s!"), *GetOwner()->GetName(), *LaserBeamOriginActor->GetName()));
 	if (HitByLaser < LaserHitActivationCount)
 	{
 		++HitByLaser;

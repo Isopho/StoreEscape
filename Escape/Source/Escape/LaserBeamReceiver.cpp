@@ -25,7 +25,6 @@ void ULaserBeamReceiver::BeginPlay()
 
 void ULaserBeamReceiver::DoLaserBeamReceivedAction()
 {
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *FString::Printf(TEXT("%s got hit by a Laser!"), *GetOwner()->GetName()));
 	OnLaserBeamReceived.Broadcast(GetOwner());
 }
 
