@@ -44,6 +44,7 @@ void ULaserBeam::UpdateLaserBeam()
 
 			if (LaserparticleSystemComponent->IsValidLowLevel())
 			{
+				LaserparticleSystemComponent->SetActive(true);
 				LaserparticleSystemComponent->SetFloatParameter("BeamDistance", HitResult.Distance);
 			}
 
@@ -58,6 +59,7 @@ void ULaserBeam::UpdateLaserBeam()
 		{
 			if (LaserparticleSystemComponent->IsValidLowLevel())
 			{
+				LaserparticleSystemComponent->SetActive(true);
 				LaserparticleSystemComponent->SetFloatParameter("BeamDistance", MaximumLaserReach);
 			}
 		}
@@ -67,6 +69,7 @@ void ULaserBeam::UpdateLaserBeam()
 		if (LaserparticleSystemComponent->IsValidLowLevel())
 		{
 			LaserparticleSystemComponent->SetFloatParameter("BeamDistance", 0.0f);
+			LaserparticleSystemComponent->SetActive(false);
 		}
 	}
 }

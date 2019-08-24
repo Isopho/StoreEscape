@@ -26,6 +26,12 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	UPROPERTY(BlueprintReadOnly)
+		float CurrentActivationDuration{ 0.0f };
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		float ActivationDelay{ 0.5f };
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -41,11 +47,6 @@ private:
 	float CurrentMoveTime{ 0.0f };
 
 	UPROPERTY(EditAnywhere)
-		float ActivationDelay{ 0.5f };
-
-	float CurrentActivationDuration{ 0.0f };
-
-	UPROPERTY(EditAnywhere)
 		float MoveTime{ 0.5f };
 
 	UPROPERTY(EditAnywhere)
@@ -54,15 +55,15 @@ private:
 	UPROPERTY(EditAnywhere)
 		bool bIsLaserBeamAlwaysOn{ false };
 
-	int32 LaserHitActivationCount{ 2 };
+	int32 LaserHitActivationCount{ 4 };
 	int32 HitByLaser{ 0 };
 
 	UPROPERTY(EditAnywhere)
 		float LaserActivationDelay{ 0.5f };
-
-
+	
 	UPROPERTY()
 		ULaserBeam * LaserBeam{};
+	
 
 	UFUNCTION()
 		void OnNotificationOfLaserBeamReceived(AActor* LaserBeamOriginActor);

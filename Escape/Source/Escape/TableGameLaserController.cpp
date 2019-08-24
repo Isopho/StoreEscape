@@ -27,14 +27,15 @@ void UTableGameLaserController::TickComponent(float DeltaTime, ELevelTick TickTy
 
 	if (!bIsLaserBeamAlwaysOn)
 	{
-		if (HitByLaser == LaserHitActivationCount && CurrentActivationDuration < ActivationDelay)
+		if (HitByLaser >= LaserHitActivationCount && CurrentActivationDuration < ActivationDelay)
 		{
 			CurrentActivationDuration += DeltaTime;
+			HitByLaser -= 1;
 		}
 		else if (HitByLaser > 0 && CurrentActivationDuration >= ActivationDelay )
 		{
 			LaserBeam->SetbIsLaserBeamActivated(true);
-			--HitByLaser;
+			HitByLaser -= 2;
 		}
 		else
 		{
@@ -45,6 +46,7 @@ void UTableGameLaserController::TickComponent(float DeltaTime, ELevelTick TickTy
 	else
 	{
 		LaserBeam->SetbIsLaserBeamActivated(true);
+		CurrentActivationDuration = ActivationDelay;
 	}
 
 	if (bMoving)
@@ -88,6 +90,9 @@ void UTableGameLaserController::BeginPlay()
 	{
 		UE_LOG(LogTemp, Error, TEXT("%s"), *FString::Printf(TEXT("UTableGameLaserController:  The ULaserBeamReceiver is missing on %s!"), *GetOwner()->GetName()));
 	}
+
+
+	LaserBeam->SetbIsLaserBeamActivated(bIsLaserBeamAlwaysOn);
 	
 }
 
@@ -95,7 +100,7 @@ void UTableGameLaserController::OnNotificationOfLaserBeamReceived(AActor* LaserB
 {
 	if (HitByLaser < LaserHitActivationCount)
 	{
-		++HitByLaser;
+		HitByLaser += 2;
 	}
 
 }
