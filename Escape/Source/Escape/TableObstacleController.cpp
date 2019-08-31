@@ -41,5 +41,6 @@ void UTableObstacleController::DoActivationAction()
 	if (Mover)
 	{
 		Mover->Move();
+		OnActivationAction.Broadcast();
 	}
 }

@@ -14,6 +14,10 @@
 /**
  * 
 */
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnActivationAction);
+
+
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class ESCAPE_API UTableObstacleController : public USwitch 
 {
@@ -25,6 +29,9 @@ public:
 
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	UPROPERTY(BlueprintAssignable)
+		FOnActivationAction OnActivationAction;
 
 protected:
 	// Called when the game starts

@@ -61,6 +61,7 @@ void UGrabber::Grab()
 			ComponentToGrab->GetOwner()->GetActorLocation(),
 			true
 		);
+		OnSuccessfulGrab.Broadcast();
 	}
 	
 }

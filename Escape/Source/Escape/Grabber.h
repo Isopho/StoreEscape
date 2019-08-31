@@ -14,6 +14,8 @@
 #include "Grabber.generated.h"
 
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuccessfulGrab);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ESCAPE_API UGrabber : public UActorComponent
 {
@@ -22,6 +24,9 @@ class ESCAPE_API UGrabber : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	UGrabber();
+
+	UPROPERTY(BlueprintAssignable)
+		FOnSuccessfulGrab OnSuccessfulGrab;
 
 protected:
 	// Called when the game starts
