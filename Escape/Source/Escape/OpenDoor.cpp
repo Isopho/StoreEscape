@@ -20,48 +20,13 @@ void UOpenDoor::BeginPlay()
 	Super::BeginPlay();
 
 	StartDegree = GetOwner()->GetActorRotation().Yaw;
-
-	if (!PressurePlate)
-	{
-		UE_LOG(LogTemp, Error, TEXT("TriggerVolume missing on %s"), *(GetOwner()->GetName()));
-	}
 	
 }
-
 
 // Called every frame
 void UOpenDoor::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	if (TotalMassOfActorsOnTriggerArea() > TriggerMass)
-	{
-		OpenDoor();
-	} 
-	else
-	{
-		CloseDoor();
-	}
-}
-
-float UOpenDoor::TotalMassOfActorsOnTriggerArea()
-{
-	if (!PressurePlate) { return 0.0f; }
-
-	float TotalMass = 0.0f;
-	
-	// Find all actors in/on trigger area
-	TArray<AActor*> OverlappingActors{};
-
-	PressurePlate->GetOverlappingActors(OUT OverlappingActors);
-
-	// sum up their masses
-	for (const auto * OverlappingActor : OverlappingActors) 
-	{		
-		TotalMass += OverlappingActor->FindComponentByClass<UPrimitiveComponent>()->GetMass();
-	}
-
-	return TotalMass;
 }
 
 void UOpenDoor::OpenDoor()

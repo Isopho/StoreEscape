@@ -228,6 +228,16 @@ void USimonGameController::SetAllOrbsPlayerActivatable(bool Activatable)
 	}
 }
 
+USimonGameController::~USimonGameController()
+{
+	if (CurrentSimonGameState)
+	{
+		CurrentSimonGameState->NullSimonGameController();
+		delete CurrentSimonGameState;
+		CurrentSimonGameState = nullptr;
+	}
+}
+
 /// useless
 // Called every frame
 void USimonGameController::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -345,6 +355,11 @@ ESimonGameState USimonGameController::FSimonGameState::GetESimonGameState() cons
 	return SimonGameState;
 }
 
+void USimonGameController::FSimonGameState::NullSimonGameController()
+{
+	SimonGameController = nullptr;
+}
+
 
 
 /* FSimonGameState UPreparingRound Class*/
@@ -399,8 +414,12 @@ void USimonGameController::FPreparingRound::InitNextRound()
 
 	/// new generate sequence - adds to the last sequence
 
+	int32 NoOfNewTargets = 1;
 	// 1 + 1 for every X levels ( X = DifficultyBumpLevels)
-	int32 NoOfNewTargets = FMath::TruncToInt((CurrentGameRound / SimonGameController->GetDifficultyBumpLevels()) + 1.0f);
+	if (SimonGameController->GetDifficultyBumpLevels() > 0.0f)
+	{
+		NoOfNewTargets = FMath::TruncToInt((CurrentGameRound / SimonGameController->GetDifficultyBumpLevels()) + 1.0f);
+	}
 
 	TArray<int32> NewOrbSeq = SimonGameController->GetCurrentOrbSequenceTarget();
 	NewOrbSeq.Append(GenerateRandomOrbSequence(NoOfNewTargets));
@@ -452,7 +471,10 @@ void USimonGameController::FDisplayingTargetSequence::PlayOrbSequence(TArray<int
 
 USimonGameController::FAwaitingPlayerInput::~FAwaitingPlayerInput()
 {
-	OnStateExit();
+	if (!(SimonGameController == nullptr))
+	{
+		OnStateExit();
+	}
 }
 
 void USimonGameController::FAwaitingPlayerInput::OnStateEnter()
@@ -467,7 +489,7 @@ void USimonGameController::FAwaitingPlayerInput::OnStateExit()
 	if (RoundTimerHandle.IsValid())
 	{
 		SimonGameController->GetWorld()->GetTimerManager().ClearTimer(RoundTimerHandle);
-	}
+	}	
 }
 
 void USimonGameController::FAwaitingPlayerInput::OnPlayerInput(int32 OrbNumber)
@@ -565,7 +587,10 @@ void USimonGameController::FGameWon::DisplayWinAnimation()
 
 USimonGameController::FGameLost::~FGameLost()
 {
-	OnStateExit();
+	if (!(SimonGameController == nullptr))
+	{
+		OnStateExit();
+	}
 }
 
 void USimonGameController::FGameLost::OnStateEnter()

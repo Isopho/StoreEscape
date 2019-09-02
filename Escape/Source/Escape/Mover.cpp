@@ -29,17 +29,6 @@ void UMover::BeginPlay()
 
 }
 
-float UMover::CalSmootherStep(float Time)
-{
-	if (Time < 1.0f) {
-		return Time * Time * Time * (Time * (Time * 6 - 15) + 10);
-	}
-	else
-	{
-		return 1.0f;
-	}
-}
-
 void UMover::SwapStartAndTarget()
 {
 	FVector tmpL = StartLocation;

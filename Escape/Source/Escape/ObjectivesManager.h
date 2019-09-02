@@ -30,27 +30,34 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	// Event: Places an objective in the hud and registers it under a name.
 	UPROPERTY(BlueprintAssignable)
 		FOnObjectiveEventTwo OnAddObjectiveToHUD;
 
+	// Event: Updates the text of a objective in the hud.
 	UPROPERTY(BlueprintAssignable)
 		FOnObjectiveEventTwo OnUpdateObjectiveInHUD;
 
+	// Event: Removes objective with the given name from the hud.
 	UPROPERTY(BlueprintAssignable)
 		FOnObjectiveEventOne OnRemoveObjectiveFromHUD;
 
+	// Registers a new objective to be managed or updates an existing objective if the ObjectiveName already exists.
 	UFUNCTION(BlueprintCallable)
 		void AddObjective(FString ObjectiveName, FString ObjectiveText);
 
+	// Returns the text of the requested objective.
 	UFUNCTION(BlueprintCallable)
 		FString GetObjective(FString ObjectiveName);
 
+	// Removes the requested objective.
 	UFUNCTION(BlueprintCallable)
 		void RemoveObjective(FString ObjectiveName);
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
+	// Map over all objecitves and their texts <ObjectiveName, ObjectiveText>
 	TMap<FString, FString> ObjectivesMap{};
 
 		

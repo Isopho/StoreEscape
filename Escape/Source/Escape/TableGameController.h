@@ -11,7 +11,10 @@
 /// Class for blueprint to activate the orbs flare, with the duration in seconds.
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTableGameBasicEvent);
 
-
+/**
+* Receives activation Event from an Actor using a USwitch component.
+* Notfies Blueprint of the activation to actiate the table game view.
+*/
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ESCAPE_API UTableGameController : public UActorComponent
 {

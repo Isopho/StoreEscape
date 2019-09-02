@@ -15,7 +15,10 @@
 
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSuccessfulGrab);
-
+/**
+* ActorComponent that allows the player to grab and lift other 
+* movable Actors with a PhysicsBody and a PhysicsHandle.
+*/
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ESCAPE_API UGrabber : public UActorComponent
 {
@@ -27,6 +30,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 		FOnSuccessfulGrab OnSuccessfulGrab;
+
+	// Called every frame
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 protected:
 	// Called when the game starts
@@ -43,12 +49,7 @@ protected:
 		{
 		}
 	};
-
-
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
+	
 private:
 	UPROPERTY(EditAnywhere)
 		//How far the player can reach.

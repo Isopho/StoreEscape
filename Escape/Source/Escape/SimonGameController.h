@@ -33,7 +33,10 @@ enum ESimonGameState
 };
 
 
-
+/**
+* SimonGame state machine UActorComponent. Defines the behaviour of the
+* SimonGame and handles communication with any registered simon orb.
+*/
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ESCAPE_API USimonGameController : public UActorComponent
 {
@@ -42,6 +45,8 @@ class ESCAPE_API USimonGameController : public UActorComponent
 public:	
 	// Sets default values for this component's properties
 	USimonGameController();
+
+	~USimonGameController();
 
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
@@ -144,7 +149,8 @@ private:
 	UFUNCTION()
 		void SetAllOrbsPlayerActivatable(bool Activatable);
 
-
+	/// Pointers handled by Unreal
+	// Pointers to all the SimonOrbs that are part of this SimonGame.
 	UPROPERTY(EditAnywhere)
 		TArray<AActor*> SimonOrbs {};
 
@@ -152,7 +158,7 @@ private:
 		uint32 GameRoundsToWin { 7 };
 
 	UPROPERTY(EditAnywhere)
-		float RoundTimeLimit{ 5.0f };
+		float RoundTimeLimit{ 20.0f };
 
 	UPROPERTY(EditAnywhere)
 		float BaseOrbFlareDuration { 1.5f};
@@ -169,14 +175,16 @@ private:
 	UPROPERTY(EditAnywhere)
 		float OrbGlowLightIntensity{ 15.0f };
 
+	// Time between each orb glow activation during win animation in seconds .
 	UPROPERTY(EditAnywhere)
 		float GameWonOrbGlowDelay{ 0.3f };
 
+	// Rate at which the game speed increases each round. GameSpeed always equals 1.0 in round 1.
 	UPROPERTY(EditAnywhere)
 		float GameSpeedIncreaseRate{ 0.334f };
 
 	UPROPERTY(EditAnywhere)
-		// Number of additional orb steps increases every X levels
+		// Number of additional orb sequence steps increases every X levels. 0 for no increase.
 		float DifficultyBumpLevels{ 5.0f };
 
 	bool bGameIsWon = false;
@@ -189,9 +197,10 @@ private:
 
 	TArray<int32> CurrentOrbSequenceTarget{};
 
+	// Multiplayer to all flare wait times to avoid overlap.
 	const float FlareWaitMultiplyer = 1.05f;
 
-
+	// Parent Game State
 	class  FSimonGameState
 	{
 	public:
@@ -207,14 +216,21 @@ private:
 
 		virtual ESimonGameState GetESimonGameState() const;
 
+		virtual void NullSimonGameController();
+
 	protected:
 
+		// Weak SmartPointer to the StateMachine.
 		TWeakObjectPtr<USimonGameController> SimonGameController{};
 
 		ESimonGameState SimonGameState;
 
 	};
 
+	/**
+	* Defines behaviour of the round preparation. Automatically transitions to the 
+	* DisplayingTargetSequence state once preparations are completed.
+	*/ 
 	class  FPreparingRound : public FSimonGameState
 	{
 	public:
@@ -233,6 +249,10 @@ private:
 		void InitNextRound();
 	};
 
+	/**
+	* Defines behaviour of the DisplayingTargetSequence game state. Displays the 
+	* target orb sequence to the player. Automatically transitions to the AwaitingPlayerInput state onde done.
+	*/
 	class  FDisplayingTargetSequence : public FSimonGameState
 	{
 	public:
@@ -248,6 +268,13 @@ private:
 
 	};
 
+	/**
+	* Defines behaviour of the AwaitingPlayerInput game state. 
+	* Awaits Player input through the simon orbs. Transitions to
+	* GameLost state if the wrong sequence was used by the player or time runs out
+	* PreparingRound state if the sequence was correct and there are more rounds to play or
+	* GameWon state if the sequence was correct and it was the last round.
+	*/
 	class  FAwaitingPlayerInput : public FSimonGameState
 	{
 	public:
@@ -271,6 +298,9 @@ private:
 		bool IsInputSequenceOkay();
 	};
 
+	/**
+	* Defines behaviour of the GameWon game state. Displays the Win animation.
+	*/
 	class  FGameWon : public FSimonGameState
 	{
 	public:
@@ -284,6 +314,10 @@ private:
 
 	};
 
+	/**
+	* Resets the SimonGame.
+	* Automatically transitions to PreparingRound state once reset is complete.
+	*/
 	class FGameLost : public FSimonGameState
 	{
 	public:
@@ -299,6 +333,9 @@ private:
 
 	};
 
+	/**
+	* Does nothing until state is change from outside the state machine.
+	*/
 	class FWaiting : public FSimonGameState
 	{
 	public:
@@ -311,7 +348,6 @@ private:
 
 
 	};
-
 
 	FSimonGameState* CurrentSimonGameState;
 

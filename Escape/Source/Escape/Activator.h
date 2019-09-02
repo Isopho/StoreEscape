@@ -17,7 +17,10 @@
 
 #include "Activator.generated.h"
 
-
+/**
+* ActorComponent that allows the Player to "activate" other Actors
+* with an ActivationReceiver Component.
+*/
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ESCAPE_API UActivator : public UActorComponent
 {
@@ -26,6 +29,9 @@ class ESCAPE_API UActivator : public UActorComponent
 public:
 	// Sets default values for this component's properties
 	UActivator();
+
+	// Called every frame
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 protected:
 	// Called when the game starts
@@ -42,12 +48,7 @@ protected:
 		{
 		}
 	};
-
-
-public:
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
+		
 private:
 	UPROPERTY(EditAnywhere)
 		//How far the player can reach.

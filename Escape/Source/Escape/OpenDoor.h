@@ -31,25 +31,15 @@ public:
 	UPROPERTY(BlueprintAssignable)
 		FDoorEvent CloseRequest;
 
+	// Called every frame
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-public:	
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
 private:
-	float StartDegree{};
-
-	UPROPERTY(EditAnywhere)
-		float TriggerMass = 10.0f;
-
-	UPROPERTY(EditAnywhere)
-		ATriggerVolume* PressurePlate {};
-
-	// Returns total mass in kg.
-	float TotalMassOfActorsOnTriggerArea();
+	float StartDegree{};	
 
 	void OpenDoor();
 

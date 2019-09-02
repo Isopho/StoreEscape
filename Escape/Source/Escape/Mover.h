@@ -20,12 +20,14 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	// Initiates a move of the actor to the TargetLocation.
 	void Move();
 
 	FVector GetStartLocation();
 
 	FVector GetTargetLocation();
 
+	// Target to move to. Used to set the movements target location and rotation.
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		AActor* MoveTarget;
 protected:
@@ -35,20 +37,20 @@ protected:
 
 private:
 
+	// Locations for the movement interpolation.
 	FVector StartLocation;
 	FVector TargetLocation;
-	
+
+	// Rotations for the movement interpolation.
 	FRotator StartRotation;
 	FRotator TargetRotation;
 
 	bool bMoving{ false };
-
-	uint32 Times = 0;
-
+	
+	// Current duration of the current move.
 	float CurrentMoveTime{ 0.0f };
-
-	float CalSmootherStep(float Time);
-
+	
+	// Duration of the move animation in seconds.
 	UPROPERTY(EditAnywhere)
 		float MoveTime{ 2.0f };
 

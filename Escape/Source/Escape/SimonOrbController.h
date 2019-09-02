@@ -18,15 +18,15 @@
 
 #include "SimonOrbController.generated.h"
 
-/// Class for blueprint to activate the orbs flare, with the duration in seconds.
+/// Classes for blueprint to activate/stop the orbs flare/glow, with parameters for duration in seconds, light flare intensity and sound volume.
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnSimonOrbFlare, float, Duration, float, LightIntensity, float, VolumeMultiplyer);
-
-/// Class for blueprint to activate the orbs flare, with the duration in seconds.
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSimonOrbGlow, float, Duration);
-
-/// Class for blueprint to activate the orbs flare, with the duration in seconds.
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSimonOrbBasicEvent);
 
+/**
+* Activatable (USwitch) ActorComponent to handle input (player activation) 
+* and output (sound and light) for a simonorb.
+*/
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ESCAPE_API USimonOrbController : public USwitch
 {
@@ -39,8 +39,10 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	// Flares the Simon orb
 	void FlareSimonOrb(float VolumeMultiplyer = 1.0f) const;
 
+	// Flares the Simon orb with custom duration and intensity.
 	void FlareSimonOrb(float Duration, float LightIntensity, float VolumeMultiplyer = 1.0f);
 
 	void SetSimonOrbGlow(bool Glowing);
@@ -77,17 +79,23 @@ protected:
 	virtual void DoActivationAction() override;
 
 private:	
+	// Duration of a flare animation.
 	float FlareTime = 1.0f;
 
+	// Base Intensity of the Simonorbs light.
 	float FlareLightIntensity = 100.0f;
 
+	// Duration of looping the glow animation in seconds.
 	UPROPERTY(EditAnywhere)
 		float GlowLoopDuration = 10.0f;
 
+	// If the simonorb is activatable by the Player.
 	bool bPlayerActivatable = false;		
 
+	// If any kind of the activation is blocked.
 	bool bActivationBlocked = false;
 
+	// If the orb should glow.
 	bool bIsGlowing = false;
 
 

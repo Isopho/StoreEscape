@@ -35,7 +35,7 @@ void UGrabber::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompone
 	// if physics handle is attached 
 	if (PhysicsHandle->GrabbedComponent) 
 	{
-		// move what player is holding
+		// move what the player is holding
 		auto ReachLine = GetReachLine();
 		PhysicsHandle->SetTargetLocation(ReachLine.End);
 	}

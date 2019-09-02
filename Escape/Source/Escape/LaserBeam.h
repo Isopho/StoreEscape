@@ -9,6 +9,10 @@
 #include "LaserBeamReceiver.h"
 #include "LaserBeam.generated.h"
 
+/**
+* ActorComponent that manages the LaserBeam ParticleEmitter
+* and handles activation of Actors with LaserBeamReveiver.
+*/
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ESCAPE_API ULaserBeam : public UActorComponent
@@ -24,7 +28,7 @@ public:
 
 	void SetbIsLaserBeamActivated(bool bActivated);
 
-	bool GetbIsLaserBeamActivated();
+	bool IsLaserBeamActivated();
 
 protected:
 	// Called when the game starts
@@ -47,19 +51,19 @@ private:
 		//How far the Laser can reach.
 		float MaximumLaserReach = 10000.0f;
 	   	 
+	/// Pointer handled bei Unreal.
 	UPROPERTY()
 		UParticleSystemComponent * LaserparticleSystemComponent{};
 
+	// (called every frame) Update the LaserBeamParticleEmitter and Actors hit by the laser based on a LineTrace.
 	void UpdateLaserBeam();
 
-	// Return hit for fist physics body in reach
+	// Return hit for fist visible Actor in reach.
 	const FHitResult GetFirstActorInLaserBeamReach() const;
 
 	// Returns a struct with pair of Vectors that mark the start and the end of the reach line.
 	const FLine GetLaserLine() const;
 		
-	int32 count{ 0 };
-
 	bool bIsLaserBeamActivated{ true };
 
 };

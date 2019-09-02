@@ -12,7 +12,8 @@
 #include "TableObstacleController.generated.h"
 
 /**
- * 
+ * Activatable (USwitch) ActorComponent that moves the actor upon activation
+ * using a UMover ActorComponent.
 */
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnActivationAction);

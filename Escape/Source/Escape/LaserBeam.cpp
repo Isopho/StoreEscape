@@ -19,7 +19,6 @@ void ULaserBeam::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
 	LaserparticleSystemComponent = GetOwner()->FindComponentByClass<UParticleSystemComponent>();
 
 	if (!LaserparticleSystemComponent->IsValidLowLevel())
@@ -36,18 +35,17 @@ void ULaserBeam::UpdateLaserBeam()
 	{
 		auto HitResult = GetFirstActorInLaserBeamReach();
 
-
 		/// If we hit something then attach a physics handle
 		if (HitResult.GetActor())
 		{
-			//FName ParamName = *FString::Printf(TEXT("BeamDistance"));
-
+			// Update length of visable ParticleBeam
 			if (LaserparticleSystemComponent->IsValidLowLevel())
 			{
 				LaserparticleSystemComponent->SetActive(true);
 				LaserparticleSystemComponent->SetFloatParameter("BeamDistance", HitResult.Distance);
 			}
 
+			// If Beam hit a LaserBeam activated Actor, activate the LaserBeamReceiver.
 			ULaserBeamReceiver* LaserBeamReceiver = HitResult.GetActor()->FindComponentByClass<ULaserBeamReceiver>();
 			if (LaserBeamReceiver)
 			{
@@ -57,6 +55,7 @@ void ULaserBeam::UpdateLaserBeam()
 		}
 		else
 		{
+			// Nothing hit: Set length of visable ParticleBeam to maximum.
 			if (LaserparticleSystemComponent->IsValidLowLevel())
 			{
 				LaserparticleSystemComponent->SetActive(true);
@@ -66,6 +65,7 @@ void ULaserBeam::UpdateLaserBeam()
 	}
 	else
 	{
+		// LaserBeam not activated: "Disable" visable ParticleBeam.
 		if (LaserparticleSystemComponent->IsValidLowLevel())
 		{
 			LaserparticleSystemComponent->SetFloatParameter("BeamDistance", 0.0f);
@@ -79,7 +79,7 @@ const FHitResult ULaserBeam::GetFirstActorInLaserBeamReach() const
 	auto LaserLine = GetLaserLine();
 
 	/// Line-trace (AKA ray-cast) out to reach distance
-	// Hit of the grab line trace.
+	// Hit of the line trace.
 	FHitResult Hit{};
 	FCollisionQueryParams CQParams{ NAME_None, false, GetOwner() };
 
@@ -95,10 +95,12 @@ const FHitResult ULaserBeam::GetFirstActorInLaserBeamReach() const
 
 const ULaserBeam::FLine ULaserBeam::GetLaserLine() const
 {
-	// Location of the laser
+	// Exit if ParticleSystem is not valid.
 	if (!LaserparticleSystemComponent->IsValidLowLevel()) {
 		return FLine{ FVector{},FVector{} };
 	}
+	
+	// LineTrace from the location and roation of the actual visable ParticleBeam.
 	FVector LaserLocation{ LaserparticleSystemComponent->K2_GetComponentLocation() };
 	FRotator LaserRotation{ LaserparticleSystemComponent->K2_GetComponentRotation() };
 	FVector LaserDirection{};
@@ -120,7 +122,6 @@ void ULaserBeam::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompo
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
 	UpdateLaserBeam();
 	
 }
@@ -130,7 +131,7 @@ void ULaserBeam::SetbIsLaserBeamActivated(bool bActivated)
 	bIsLaserBeamActivated = bActivated;
 }
 
-bool ULaserBeam::GetbIsLaserBeamActivated()
+bool ULaserBeam::IsLaserBeamActivated()
 {
 	return bIsLaserBeamActivated;
 }

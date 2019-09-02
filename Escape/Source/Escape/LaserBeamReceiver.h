@@ -10,6 +10,10 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLaserBeamReceived, AActor*, LaserBeamReceivedActor);
 
+/**
+* ActorComponent that alles the Actor to be activated by a LaserBeam.
+*/
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class ESCAPE_API ULaserBeamReceiver : public UActorComponent
 {
@@ -25,6 +29,7 @@ public:
 	UPROPERTY(BlueprintAssignable)
 		FOnLaserBeamReceived OnLaserBeamReceived;
 
+	// Broadcasts a Event. Called by LaserBeam when Actor was hit by its line-trace. 
 	virtual void DoLaserBeamReceivedAction();
 
 protected:
