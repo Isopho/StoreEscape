@@ -87,7 +87,7 @@ const FHitResult ULaserBeam::GetFirstActorInLaserBeamReach() const
 	/// Line-trace (AKA ray-cast) out to reach distance
 	// Hit of the line trace.
 	FHitResult Hit{};
-	FCollisionQueryParams CQParams{ NAME_None, true, GetOwner() };
+	FCollisionQueryParams CQParams{ NAME_None, false, GetOwner() };
 
 	bool FoundHit = GetWorld()->LineTraceSingleByChannel(
 		OUT Hit,
