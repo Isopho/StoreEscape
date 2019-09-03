@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "ActivationReceiver.h"
+#include "Switch.h"
 #include "Engine/World.h"
 #include "LaserBeam.h"
 #include "LaserBeamReceiver.h"
@@ -14,7 +14,7 @@
  * that controls the activation and rotation behaviour of a LaserNode. 
  */
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
-class ESCAPE_API UTableGameLaserController : public UActivationReceiver
+class ESCAPE_API UTableGameLaserController : public USwitch
 {
 	GENERATED_BODY()
 	

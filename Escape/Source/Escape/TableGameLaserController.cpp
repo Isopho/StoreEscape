@@ -15,6 +15,7 @@ void UTableGameLaserController::DoActivationAction()
 		TargetRotation = StartRotation + FRotator{ 0,TurnDegreesPerActivation, 0 };
 		bMoving = true;
 	}
+	OnSwitchActivation.Broadcast(GetOwner());
 
 }
 

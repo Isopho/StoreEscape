@@ -25,6 +25,12 @@ void ULaserBeam::BeginPlay()
 	{
 		UE_LOG(LogTemp, Error, TEXT("%s"), *FString::Printf(TEXT("ULaserBeam:  The UParticleSystemComponent is missing on %s!"), *GetOwner()->GetName()));
 	}
+
+	if (LaserparticleSystemComponent->IsValidLowLevel())
+	{
+		LaserparticleSystemComponent->SetFloatParameter("BeamDistance", 0.0f);
+		LaserparticleSystemComponent->SetActive(false);
+	}
 }
 
 void ULaserBeam::UpdateLaserBeam()
@@ -81,7 +87,7 @@ const FHitResult ULaserBeam::GetFirstActorInLaserBeamReach() const
 	/// Line-trace (AKA ray-cast) out to reach distance
 	// Hit of the line trace.
 	FHitResult Hit{};
-	FCollisionQueryParams CQParams{ NAME_None, false, GetOwner() };
+	FCollisionQueryParams CQParams{ NAME_None, true, GetOwner() };
 
 	bool FoundHit = GetWorld()->LineTraceSingleByChannel(
 		OUT Hit,
