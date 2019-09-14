@@ -1,7 +1,7 @@
 # BuildingEscape
 Unreal 4 learning Project "Store Escape"
 
-In the game "Store Escape" you are locked in a curious and somewhat abandond store. 
+In the game "Store Escape" you are locked in a curious and somewhat abandoned store. 
 The keys to the front door are already in sight, you could just crawl to them, but you don't want to get dirty.
 Time to find another way...
 
